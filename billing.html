@@ -59,7 +59,10 @@
   t.addEventListener("click",function(){
     var now=Date.now(); clicks=clicks.filter(function(c){return now-c<2000}); clicks.push(now);
     if(clicks.length>=3){ clicks=[]; window.VL.rageClicks++; document.cookie="vl_rage=1;path=/;max-age=86400;SameSite=Lax";
-      document.dispatchEvent(new CustomEvent("vl:frustration",{detail:{element:"line-item-toggle"}})); }
+      document.dispatchEvent(new CustomEvent("vl:frustration",{detail:{element:"line-item-toggle"}}));
+      /* Future state with the Qualtrics agent: flag the moment and re-run Qualtrics targeting so the bill-page intercept can show. */
+      if(window.VL.mode==="future" && window.VL.agent!=="sim"){ window.VL.qualtricsAssist=true;
+        try{ if(window.QSI&&QSI.API){ QSI.API.unload(); QSI.API.load().then(function(){ QSI.API.run(); }); } }catch(e){} } }
   });
   document.getElementById("pay").addEventListener("click",function(e){e.preventDefault();});
   document.getElementById("download-pdf").addEventListener("click",function(e){e.preventDefault();});
