@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>September bill | Vantaline</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230B6E78'/%3E%3Cpath d='M7 9l7 11 7-11' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body data-page="billing" data-auth="in">
+
+<main class="wrap acct">
+<nav class="side" aria-label="Account"><a href="account.html">Overview</a><a href="billing.html" aria-current="page">Billing</a><a href="offers.html">Plans & offers</a><a href="support.html">Support</a></nav>
+<div class="stack">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+    <div><span class="label">September statement · Account VL-5520-8813</span><h1 style="font-size:30px;margin-top:4px">Your bill</h1></div>
+    <a class="btn ghost sm" href="#" id="download-pdf" aria-disabled="true">Download PDF</a>
+  </div>
+  <div class="grid2">
+    <div class="card stack">
+      <span class="label">Amount due</span>
+      <span class="big" id="amount-due">$146.40</span>
+      <span class="muted">Due Sep 21 · Autopay off</span>
+      <span class="muted" style="font-size:14px">Last month: $89.99</span>
+      <a href="bill-faq.html" id="why-changed">Why did my bill change?</a>
+      <a class="btn" id="pay" href="#pay" style="align-self:flex-start">Pay now</a>
+    </div>
+    <div class="card" id="bill-summary">
+      <h2 style="font-size:18px;margin-bottom:6px">Bill summary</h2>
+      <div class="row"><span>Internet 500</span><span>$85.00</span></div>
+      <div class="row"><span>TV Select</span><span>$42.00</span></div>
+      <div class="row"><span>Gateway rental</span><span>$15.00</span></div>
+      <div class="row"><span>Taxes &amp; fees</span><span>$4.40</span></div>
+      <div class="row muted"><span>Promotional discount</span><span>—</span></div>
+      <div class="row total"><span>Total</span><span>$146.40</span></div>
+      <button class="linkbtn" type="button" id="line-item-toggle" style="margin-top:12px">Show line-item details ▾</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="font-size:18px;margin-bottom:6px">Past statements</h2>
+    <div class="row"><span>August 2026</span><span>$89.99</span></div>
+    <div class="row"><span>July 2026</span><span>$89.99</span></div>
+    <div class="row"><span>June 2026</span><span>$89.99</span></div>
+  </div>
+</div>
+</main>
+<script src="site.js"></script>
+<script src="agent-sim.js"></script>
+<script>
+(function(){
+  /* The line-item toggle is intentionally broken for the story: it does nothing.
+     Repeated clicks are reported as frustration for Qualtrics targeting and the simulated agent. */
+  var t=document.getElementById("line-item-toggle"), clicks=[];
+  window.VL=window.VL||{}; window.VL.rageClicks=0;
+  t.addEventListener("click",function(){
+    var now=Date.now(); clicks=clicks.filter(function(c){return now-c<2000}); clicks.push(now);
+    if(clicks.length>=3){ clicks=[]; window.VL.rageClicks++; document.cookie="vl_rage=1;path=/;max-age=86400;SameSite=Lax";
+      document.dispatchEvent(new CustomEvent("vl:frustration",{detail:{element:"line-item-toggle"}})); }
+  });
+  document.getElementById("pay").addEventListener("click",function(e){e.preventDefault();});
+  document.getElementById("download-pdf").addEventListener("click",function(e){e.preventDefault();});
+})();
+</script>
+<script src="qualtrics-deploy.js"></script>
+</body>
+</html>

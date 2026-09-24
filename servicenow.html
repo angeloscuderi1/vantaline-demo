@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Case console (mock) | Vantaline</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#EEF1F4;--panel:#fff;--ink:#1B2533;--ink-2:#4A5668;--ink-3:#7A8595;--line:#D9DFE6;--nav:#1F2B38;--nav-2:#2C3A4A;--accent:#2F6FB3;--accent-soft:#E3EEF9;--red:#C23B32;--red-soft:#FBE4E1;--green:#1F7A4D;--green-soft:#DDF2E6;--amber:#9A6200;--amber-soft:#FFF1CF;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "IBM Plex Sans",ui-sans-serif,system-ui,sans-serif}
+button,select{font:inherit}
+.top{background:var(--nav);color:#DCE3EA;display:flex;align-items:center;gap:16px;padding:0 16px;height:48px}
+.top b{color:#fff;font-weight:600}
+.top .sp{flex:1}
+.top select{background:var(--nav-2);color:#fff;border:1px solid #3B4B5E;border-radius:4px;padding:3px 6px}
+.mock{font-size:11px;background:#F2C14E;color:#1B2533;border-radius:3px;padding:1px 6px;font-weight:600;letter-spacing:.04em}
+.layout{display:grid;grid-template-columns:320px minmax(0,1fr);height:calc(100vh - 48px)}
+.list{background:var(--panel);border-right:1px solid var(--line);overflow:auto}
+.list h2{font-size:13px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);color:var(--ink-2);font-weight:600}
+.item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 14px;cursor:pointer}
+.item:hover{background:#F6F8FA}.item[aria-current=true]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.item .n{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.item .s{font-weight:500;margin:2px 0}
+.item .m{font-size:12px;color:var(--ink-3)}
+.main{overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hdr h1{font-size:20px;margin:0}
+.hdr .n{font-family:var(--mono);color:var(--accent);font-size:13px}
+.badge{display:inline-block;border-radius:3px;padding:2px 8px;font-size:12px;font-weight:600}
+.b-red{background:var(--red-soft);color:var(--red)}.b-green{background:var(--green-soft);color:var(--green)}.b-amber{background:var(--amber-soft);color:var(--amber)}.b-gray{background:#E7EBEF;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.panel h3{margin:0;padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;padding:6px 14px 12px}
+.f{padding:7px 0;border-bottom:1px solid #EEF1F4}
+.f label{display:block;font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.f .v{margin-top:1px}
+.f .v.empty{color:var(--red);font-style:italic}
+.xm .f{border-bottom:1px solid #EEF1F4}
+.act{padding:10px 14px;display:flex;flex-direction:column;gap:10px}
+.a{border-left:3px solid var(--line);padding-left:10px}
+.a .w{font-size:12px;color:var(--ink-3)}
+.a.sys{border-color:#9AA6B4}.a.agent{border-color:var(--accent)}.a.xm{border-color:#7A5AF8}
+.note{font-size:12px;color:var(--ink-3);padding:0 2px}
+@media (max-width:900px){.layout{grid-template-columns:1fr;height:auto}.list{max-height:240px}.cols,.fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-page="case-console">
+<div class="top">
+  <b>Vantaline Customer Service · Case console</b><span class="mock">MOCK · stands in for ServiceNow CSM</span>
+  <span class="sp"></span>
+  <label>Story <select id="mode"><option value="current">Current state</option><option value="future">Future state</option></select></label>
+  <a href="account.html" style="color:#DCE3EA">Customer site</a>
+</div>
+<div class="layout">
+  <aside class="list" aria-label="Cases">
+    <h2>My team's cases · Billing Ops</h2>
+    <div id="items"></div>
+  </aside>
+  <main class="main" id="case"></main>
+</div>
+<script>
+(function(){
+"use strict";
+function pref(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
+var qs=new URLSearchParams(location.search);
+var mode=qs.get("mode")||pref("vl_mode","current");
+var sel=document.getElementById("mode");sel.value=mode;
+sel.addEventListener("change",function(){try{localStorage.setItem("vl_mode",sel.value)}catch(e){}location.search="?mode="+sel.value;});
+
+var CASES={
+ current:[
+  {num:"CS0048213",short:"Billing dispute: bill increased after promotion",cust:"Maya Torres",acct:"VL-5520-8813",state:["Closed","b-gray"],pri:["P3 · Moderate","b-gray"],cat:"Billing dispute › Promo expiration",channel:"Phone",opened:"Sep 2, 2026 12:53 pm",sla:"5 business days",group:"Billing Ops",assigned:"Billing Ops queue",resolution:"Customer informed of pricing",closed:"Sep 5, 2026",
+   xm:null,
+   activity:[["sys","Sep 5 · 4:10 pm","Case closed. Resolution: Customer informed of pricing."],["agent","Sep 5 · 4:08 pm · Billing Ops","Reviewed account. Promotional rate expired Sep 1 per plan terms. No adjustment."],["agent","Sep 2 · 12:53 pm · D. Keller (Billing)","Customer called about higher bill. Transferred to retention. Opening dispute per customer request."]]},
+  {num:"CS0048190",short:"Autopay failed, late fee applied",cust:"R. Okafor",acct:"VL-2201-4410",state:["In progress","b-amber"],pri:["P3 · Moderate","b-gray"],cat:"Billing › Payment failure",channel:"Chat",opened:"Sep 2, 2026 10:14 am",sla:"5 business days",group:"Billing Ops",assigned:"L. Chen",resolution:"",xm:null,activity:[]},
+  {num:"CS0048177",short:"Equipment fee question",cust:"J. Alvarez",acct:"VL-7730-1185",state:["New","b-gray"],pri:["P4 · Low","b-gray"],cat:"Billing › Equipment fees",channel:"Web",opened:"Sep 2, 2026 9:02 am",sla:"7 business days",group:"Billing Ops",assigned:"",resolution:"",xm:null,activity:[]}
+ ],
+ future:[
+  {num:"CS0051877",short:"Promo roll-off exception: $15 one-time credit",cust:"Maya Torres",acct:"VL-5520-8813",state:["Resolved","b-green"],pri:["P1 · Retention risk","b-red"],cat:"Billing › Promo expiration (exception)",channel:"Digital agent → Retention",opened:"Sep 1, 2026 7:52 pm",sla:"4 hours",group:"Retention",assigned:"Jordan R.",resolution:"$119/mo for 12 months + $15 credit",closed:"Sep 1, 2026 7:58 pm",
+   xm:{risk:"64% (Aug 2) → 18% after save",ltv:"$11,200",journey:"Promo email (not opened) · bill page · agent chat",replay:"S-91A0-22D3",topics:"Promo expiration · price increase",sentiment:"−0.48 → +0.35",pulse:"NPS 8 · “Wish I'd seen the first email, but that was easy.”",summary:"Promo ended Sep 1; bill up from $89.99 to $146.40. Didn't see the Aug 11 notice. Offered $119 for 12 months; asked for $99. Frustrated on bill page (rage clicks)."},
+   activity:[["xm","Sep 1 · 7:59 pm · Qualtrics","In-chat pulse received: NPS 8. Case context updated."],["sys","Sep 1 · 7:58 pm","Case resolved. $119/mo for 12 months applied; $15 credit approved by Jordan R."],["agent","Sep 1 · 7:52 pm · Jordan R. (Retention)","Approved one-time $15 credit outside agent policy. Customer accepted."],["xm","Sep 1 · 7:52 pm · Qualtrics Experience Agent","Case created from agent handoff. Transcript summary, churn score and session replay attached."]]}
+ ]
+};
+var list=CASES[mode==="future"?"future":"current"];
+var items=document.getElementById("items"),box=document.getElementById("case");
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
+function f(label,val){return '<div class="f"><label>'+label+'</label><div class="v'+(val?'':' empty')+'">'+(val?esc(val):'not available')+'</div></div>'}
+function show(i){
+  var c=list[i];
+  Array.prototype.forEach.call(items.children,function(el,j){el.setAttribute("aria-current",String(i===j))});
+  var xm=c.xm;
+  box.innerHTML='<div class="hdr"><div><div class="n">'+c.num+'</div><h1>'+esc(c.short)+'</h1></div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge '+c.state[1]+'">'+c.state[0]+'</span><span class="badge '+c.pri[1]+'">'+c.pri[0]+'</span></div></div>'+
+  '<div class="cols"><div style="display:flex;flex-direction:column;gap:14px">'+
+   '<section class="panel"><h3>Case details</h3><div class="fields">'+f("Customer",c.cust)+f("Account",c.acct)+f("Category",c.cat)+f("Channel",c.channel)+f("Opened",c.opened)+f("SLA",c.sla)+f("Assignment group",c.group)+f("Assigned to",c.assigned||"Unassigned")+f("Resolution",c.resolution||"—")+f("Closed",c.closed||"—")+'</div></section>'+
+   '<section class="panel"><h3>Activity</h3><div class="act">'+(c.activity.length?c.activity.map(function(a){return '<div class="a '+a[0]+'"><div class="w">'+esc(a[1])+'</div><div>'+esc(a[2])+'</div></div>'}).join(""):'<p class="note">No activity yet.</p>')+'</div></section>'+
+  '</div>'+
+   '<section class="panel xm"><h3>Experience context <span class="badge '+(xm?'b-green':'b-red')+'">'+(xm?'From Qualtrics':'None')+'</span></h3><div class="fields" style="grid-template-columns:1fr">'+
+    (xm?f("Agent summary",xm.summary)+f("Churn risk",xm.risk)+f("Lifetime value",xm.ltv)+f("Journey",xm.journey)+f("Session replay",xm.replay)+f("Topics",xm.topics)+f("Sentiment",xm.sentiment)+f("Latest feedback",xm.pulse)
+       :f("Churn risk","")+f("Prior contacts","")+f("Session replay","")+f("Topics","")+f("Survey feedback",""))+
+   '</div>'+(xm?'':'<p class="note" style="padding:0 14px 12px">In the current state, experience signals live in separate tools and never reach the case.</p>')+'</section>'+
+  '</div>';
+}
+list.forEach(function(c,i){var b=document.createElement("button");b.className="item";b.type="button";b.innerHTML='<div class="n">'+c.num+'</div><div class="s">'+esc(c.short)+'</div><div class="m">'+esc(c.cust)+' · '+c.state[0]+' · '+c.pri[0]+'</div>';b.addEventListener("click",function(){show(i)});items.appendChild(b)});
+show(0);
+})();
+</script>
+</body>
+</html>

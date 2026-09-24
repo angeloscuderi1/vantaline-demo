@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your options | Vantaline</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230B6E78'/%3E%3Cpath d='M7 9l7 11 7-11' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body data-page="offers" data-auth="in">
+
+<main class="wrap acct">
+<nav class="side" aria-label="Account"><a href="account.html">Overview</a><a href="billing.html">Billing</a><a href="offers.html" aria-current="page">Plans & offers</a><a href="support.html">Support</a></nav>
+<div class="stack">
+  <div><span class="label">For Maya Torres · Account VL-5520-8813</span><h1 style="font-size:30px;margin-top:4px">Your promotional rate ended on Sep 1</h1></div>
+  <p class="muted" style="max-width:62ch">Thanks for 7 years with Vantaline. Your 12-month rate of $89.99 ended, and your regular bill is now $146.40. Here are your options. You can switch in one click, and the change applies to this bill.</p>
+  <div class="offers" id="offer-list">
+    <div class="offer rec"><span class="pill warn" style="align-self:flex-start">Recommended</span><span class="p">$119/mo</span><b>Keep everything</b><span class="muted">Internet 500 + TV Select for 12 months</span><button class="btn sm" type="button" data-offer="Keep everything at $119/mo">Choose</button></div>
+    <div class="offer"><span class="p">$85/mo</span><b>Internet 500 only</b><span class="muted">Drop TV, no fees to change</span><button class="btn ghost sm" type="button" data-offer="Internet 500 only at $85/mo">Choose</button></div>
+    <div class="offer"><span class="p">$146.40</span><b>Keep my current plan</b><span class="muted">No changes</span><button class="btn ghost sm" type="button" data-offer="Keep current plan">Choose</button></div>
+  </div>
+  <div class="notice teal" id="offer-done" hidden></div>
+</div>
+</main>
+<script src="site.js"></script>
+<script src="agent-sim.js"></script>
+<script>
+document.querySelectorAll("[data-offer]").forEach(function(b){b.addEventListener("click",function(){
+  var n=document.getElementById("offer-done"); n.hidden=false; n.innerHTML="<b>Done.</b> "+b.dataset.offer+" starts with your September bill. A confirmation email is on its way.";
+  window.VL=window.VL||{}; window.VL.offerChosen=b.dataset.offer; document.cookie="vl_offer="+encodeURIComponent(b.dataset.offer)+";path=/;max-age=2592000;SameSite=Lax";
+});});
+</script>
+<script src="qualtrics-deploy.js"></script>
+</body>
+</html>
