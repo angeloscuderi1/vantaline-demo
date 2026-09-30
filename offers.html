@@ -7,25 +7,21 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230B6E78'/%3E%3Cpath d='M7 9l7 11 7-11' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 28'%3E%3Crect y='16' width='7' height='12' fill='%230B6E78'/%3E%3Crect x='11.5' y='8' width='7' height='20' fill='%230F1B2D'/%3E%3Crect x='23' width='7' height='28' fill='%230F1B2D'/%3E%3C/svg%3E">
 </head>
 <body data-page="offers" data-auth="in">
-
-<main class="wrap acct">
-<nav class="side" aria-label="Account"><a href="account.html">Overview</a><a href="billing.html">Billing</a><a href="offers.html" aria-current="page">Plans & offers</a><a href="support.html">Support</a></nav>
-<div class="stack">
-  <div><span class="label">For Maya Torres · Account VL-5520-8813</span><h1 style="font-size:30px;margin-top:4px">Your promotional rate ended on Sep 1</h1></div>
-  <p class="muted" style="max-width:62ch">Thanks for 7 years with Vantaline. Your 12-month rate of $89.99 ended, and your regular bill is now $146.40. Here are your options. You can switch in one click, and the change applies to this bill.</p>
+<section class="acct-head"><div class="wrap narrow"><div class="crumb">For Maya Torres · Account VL-5520-8813</div><h1>Your promotional rate ended on Sep 1</h1><nav class="acct-tabs" aria-label="Account"><a href="account.html">Overview</a><a href="billing.html">Bill &amp; payments</a><a href="offers.html" aria-current="page">Plans &amp; offers</a><a href="support.html">Support</a></nav></div></section>
+<main class="acct-body"><div class="wrap narrow stack">
+  <p style="max-width:66ch;font-size:18px">Thanks for 7 years with Vantaline. Your 12-month rate of $89.99 ended, and your regular bill is now $146.40. Here are your options. You can switch in one click, and the change applies to this bill.</p>
   <div class="offers" id="offer-list">
-    <div class="offer rec"><span class="pill warn" style="align-self:flex-start">Recommended</span><span class="p">$119/mo</span><b>Keep everything</b><span class="muted">Internet 500 + TV Select for 12 months</span><button class="btn sm" type="button" data-offer="Keep everything at $119/mo">Choose</button></div>
-    <div class="offer"><span class="p">$85/mo</span><b>Internet 500 only</b><span class="muted">Drop TV, no fees to change</span><button class="btn ghost sm" type="button" data-offer="Internet 500 only at $85/mo">Choose</button></div>
-    <div class="offer"><span class="p">$146.40</span><b>Keep my current plan</b><span class="muted">No changes</span><button class="btn ghost sm" type="button" data-offer="Keep current plan">Choose</button></div>
+    <div class="offer rec"><span class="badge">Recommended</span><span class="p">$119<small>/mo</small></span><b>Keep everything</b><span class="muted">Internet 500 + TV Select for 12 months</span><ul><li>Same speeds and channels</li><li>12-month price lock</li><li>Applies to this bill</li></ul><button class="btn" type="button" data-offer="Keep everything at $119/mo">Choose</button></div>
+    <div class="offer"><span class="p">$85<small>/mo</small></span><b>Internet 500 only</b><span class="muted">Drop TV, no fees to change</span><ul><li>500 Mbps, unlimited data</li><li>Gateway $15/mo extra</li><li>Add TV back anytime</li></ul><button class="btn ghost" type="button" data-offer="Internet 500 only at $85/mo">Choose</button></div>
+    <div class="offer"><span class="p">$146.40</span><b>Keep my current plan</b><span class="muted">No changes</span><ul><li>Regular rate continues</li><li>Change anytime</li></ul><button class="btn ghost" type="button" data-offer="Keep current plan">Choose</button></div>
   </div>
-  <div class="notice teal" id="offer-done" hidden></div>
-</div>
-</main>
+  <div class="notice" id="offer-done" hidden></div>
+</div></main>
 <script src="site.js"></script>
 <script src="agent-sim.js"></script>
 <script>
