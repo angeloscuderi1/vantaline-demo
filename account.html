@@ -7,33 +7,47 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230B6E78'/%3E%3Cpath d='M7 9l7 11 7-11' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 28'%3E%3Crect y='16' width='7' height='12' fill='%230B6E78'/%3E%3Crect x='11.5' y='8' width='7' height='20' fill='%230F1B2D'/%3E%3Crect x='23' width='7' height='28' fill='%230F1B2D'/%3E%3C/svg%3E">
 </head>
 <body data-page="account" data-auth="in">
-
-<main class="wrap acct">
-<nav class="side" aria-label="Account"><a href="account.html" aria-current="page">Overview</a><a href="billing.html">Billing</a><a href="offers.html">Plans & offers</a><a href="support.html">Support</a></nav>
-<div class="stack">
-  <h1 style="font-size:30px">Hi, Maya</h1>
-  <div class="notice teal" data-mode="future"><b>Your promotional rate ended on Sep 1.</b> We've put together three options for you, including keeping everything for $119/mo. <a href="offers.html">See your options</a></div>
-  <div class="grid2">
-    <div class="card stack">
-      <span class="label">Amount due Sep 21</span>
-      <span class="big">$146.40</span>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="billing.html">View bill</a><a class="btn ghost" href="billing.html#pay">Pay now</a></div>
+<section class="acct-head"><div class="wrap narrow"><div class="crumb">Account VL-5520-8813 · 1420 N Farwell Ave</div><h1>Hi, Maya</h1><nav class="acct-tabs" aria-label="Account"><a href="account.html" aria-current="page">Overview</a><a href="billing.html">Bill &amp; payments</a><a href="offers.html">Plans &amp; offers</a><a href="support.html">Support</a></nav></div></section>
+<div class="statusbar"><div class="wrap narrow"><span class="dot"></span><span><b>No outages in your area.</b> Internet and TV are running normally.</span></div></div>
+<main class="acct-body"><div class="wrap narrow stack">
+  <div class="notice" data-mode="future"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>Your promotional rate ended on Sep 1.</b> We put together three options for you, including keeping everything for $119/mo. <a class="textlink" href="offers.html">See your options</a></span></div>
+  <div class="grid-main">
+    <div class="stack">
+      <div class="panel"><header><h2>Services and equipment</h2><a class="textlink" href="support.html">Manage</a></header>
+        <div class="tw"><table class="dt"><tbody>
+          <tr><td><b>Internet 500</b><br><span class="muted">Speed test today: 512 down, 38 up Mbps</span></td><td class="r"><span class="pill ok">Online</span></td></tr>
+          <tr><td><b>TV Select</b><br><span class="muted">2 set-top boxes: Living room, Bedroom</span></td><td class="r"><span class="pill ok">Active</span></td></tr>
+          <tr><td><b>Gateway XB-7</b><br><span class="muted">Rented · Serial 7K4-2291-0588</span></td><td class="r"><span class="pill ok">Online</span></td></tr>
+          <tr><td><b>Autopay</b><br><span class="muted">Not set up</span></td><td class="r"><span class="pill warn">Off</span></td></tr>
+        </tbody></table></div></div>
+      <div class="panel"><header><h2>Connected devices</h2><span class="label">14 connected</span></header>
+        <div class="tw"><table class="dt"><tbody>
+          <tr><td>Maya's iPhone</td><td>5 GHz</td><td class="r">Excellent</td></tr>
+          <tr><td>Living room TV</td><td>5 GHz</td><td class="r">Good</td></tr>
+          <tr><td>Work laptop</td><td>5 GHz</td><td class="r">Excellent</td></tr>
+          <tr><td>Thermostat</td><td>2.4 GHz</td><td class="r">Fair</td></tr>
+        </tbody></table></div></div>
     </div>
-    <div class="card stack">
-      <span class="label">Your services</span>
-      <div class="row"><span>Internet 500</span><span class="pill">Active</span></div>
-      <div class="row"><span>TV Select</span><span class="pill">Active</span></div>
-      <div class="row"><span>Gateway</span><span class="muted">Rented</span></div>
+    <div class="stack">
+      <div class="panel"><header><h2>Your bill</h2><span class="pill warn">Due Sep 21</span></header>
+        <div class="pad"><span class="label">Amount due</span><div class="big" style="font-size:62px;margin-top:6px">$146.40</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><a class="btn" href="billing.html">Pay bill</a><a class="btn ghost" href="billing.html">View bill</a></div></div></div>
+      <div class="panel"><header><h2>Usage this cycle</h2></header>
+        <div class="pad"><div style="display:flex;justify-content:space-between"><b>Home internet</b><span>641 GB</span></div><div class="meter"><i style="width:34%"></i></div><span class="label">Unlimited plan</span></div></div>
+      <div class="panel"><header><h2>Recommended for you</h2></header>
+        <div class="row"><span class="l"><b>Add Vantaline Mobile</b><small>$30/mo per line with your Internet</small></span><a class="btn ghost sm" href="offers.html">View</a></div>
+        <div class="row"><span class="l"><b>Upgrade to Gig Internet</b><small>Whole-home Wi-Fi included</small></span><a class="btn ghost sm" href="offers.html">View</a></div></div>
+      <div class="panel"><header><h2>Customer since 2019</h2></header>
+        <div class="row"><span>Paperless billing</span><span class="pill">On</span></div>
+        <div class="row"><span>Email</span><span class="muted">maya.torres@example.com</span></div></div>
     </div>
   </div>
-  <div class="card"><span class="label">Customer since</span><p style="font-size:18px;margin-top:4px">2019 · thank you for 7 years</p></div>
-</div>
-</main>
+</div></main>
 <script src="site.js"></script>
 <script src="agent-sim.js"></script>
 

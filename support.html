@@ -7,27 +7,46 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230B6E78'/%3E%3Cpath d='M7 9l7 11 7-11' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 28'%3E%3Crect y='16' width='7' height='12' fill='%230B6E78'/%3E%3Crect x='11.5' y='8' width='7' height='20' fill='%230F1B2D'/%3E%3Crect x='23' width='7' height='28' fill='%230F1B2D'/%3E%3C/svg%3E">
 </head>
 <body data-page="support" data-auth="in">
 
-<main class="wrap acct">
-<nav class="side" aria-label="Account"><a href="account.html">Overview</a><a href="billing.html">Billing</a><a href="offers.html">Plans & offers</a><a href="support.html" aria-current="page">Support</a></nav>
-<div class="stack">
-  <h1 style="font-size:30px">How can we help?</h1>
-  <div class="grid2">
-    <div class="card"><h3>Billing and payments</h3><p class="muted" style="margin-top:6px">Understand your bill, make a payment, set up Autopay.</p><a href="bill-faq.html" style="display:inline-block;margin-top:10px">Billing help</a></div>
-    <div class="card"><h3>Internet and Wi-Fi</h3><p class="muted" style="margin-top:6px">Check for outages, restart your gateway, improve Wi-Fi.</p></div>
-    <div class="card"><h3>TV</h3><p class="muted" style="margin-top:6px">Channel lineup, set-top box help, DVR.</p></div>
-    <div class="card"><h3>Contact us</h3><p class="muted" style="margin-top:6px">Chat with us using the button at the bottom right, or call 1-800-555-0142 (fictional).</p></div>
+<main>
+<section class="band teal search-band" style="padding-block:60px 64px"><div class="wrap narrow"><h1>How can we help, Maya?</h1>
+  <div class="searchbox"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="support-search" type="search" placeholder="Search billing, Wi-Fi, TV, outages" aria-label="Search support"><p>Popular: restart gateway, autopay, set-top box, promotion ended</p></div></div></section>
+<div class="statusbar"><div class="wrap narrow"><span class="dot"></span><span><b>All systems normal.</b> No known outages at 1420 N Farwell Ave.</span></div></div>
+<section class="band wash"><div class="wrap narrow">
+  <div class="topics" id="topic-grid">
+    <a class="topic" href="bill-faq.html" data-topic="billing and payments understand your bill, pay, set up autopay."><h3><svg class="ic" aria-hidden="true"><use href="#i-bill"/></svg>Billing and payments</h3><p>Understand your bill, pay, set up Autopay.</p></a>
+    <a class="topic" href="#" data-topic="internet and wi-fi outages, restart your gateway, improve wi-fi."><h3><svg class="ic" aria-hidden="true"><use href="#i-wifi"/></svg>Internet and Wi-Fi</h3><p>Outages, restart your gateway, improve Wi-Fi.</p></a>
+    <a class="topic" href="#" data-topic="tv channel lineup, set-top box help, dvr."><h3><svg class="ic" aria-hidden="true"><use href="#i-tv"/></svg>TV</h3><p>Channel lineup, set-top box help, DVR.</p></a>
+    <a class="topic" href="#" data-topic="mobile sim and esim, device payments, travel."><h3><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Mobile</h3><p>SIM and eSIM, device payments, travel.</p></a>
+    <a class="topic" href="#" data-topic="account and security email, password, contact preferences."><h3><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Account and security</h3><p>Email, password, contact preferences.</p></a>
+    <a class="topic" href="#" data-topic="service visits schedule, reschedule or track a technician."><h3><svg class="ic" aria-hidden="true"><use href="#i-tool"/></svg>Service visits</h3><p>Schedule, reschedule or track a technician.</p></a>
   </div>
-</div>
+</div></section>
+<section class="band wash" style="padding-top:0"><div class="wrap narrow"><div class="grid2">
+  <div class="panel"><header><h2>Most viewed</h2></header><div class="artlist" style="margin-top:10px">
+    <a href="bill-faq.html">Understanding your bill <span>48K views</span></a>
+    <a href="#">Restart your gateway <span>31K views</span></a>
+    <a href="#">What happens when a promotion ends <span>22K views</span></a>
+    <a href="#">Set up Autopay <span>19K views</span></a>
+    <a href="#">Pair a set-top box <span>12K views</span></a></div></div>
+  <div class="panel" id="contact"><header><h2>Contact us</h2></header>
+    <div class="row" style="margin-top:10px"><span class="l"><b>Chat with us</b><small>Virtual assistant, or ask for a person</small></span><a class="btn sm" href="#" data-open-chat>Start chat</a></div>
+    <div class="row"><span class="l"><b>Call us</b><small>Average wait about 11 minutes</small></span><span>1-800-555-0142</span></div>
+    <div class="row"><span class="l"><b>Visit a store</b><small>Equipment swaps and in-person help</small></span><a class="btn ghost sm" href="#">Find a store</a></div></div>
+</div></div></section>
 </main>
 <script src="site.js"></script>
 <script src="agent-sim.js"></script>
-
+<script>
+(function(){var i=document.getElementById("support-search");if(!i)return;
+i.addEventListener("input",function(){var q=i.value.trim().toLowerCase();
+document.querySelectorAll("#topic-grid .topic").forEach(function(t){t.hidden=q&&t.dataset.topic.indexOf(q)<0;});});})();
+</script>
 <script src="qualtrics-deploy.js"></script>
 </body>
 </html>

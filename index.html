@@ -7,39 +7,103 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="site.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230B6E78'/%3E%3Cpath d='M7 9l7 11 7-11' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 28'%3E%3Crect y='16' width='7' height='12' fill='%230B6E78'/%3E%3Crect x='11.5' y='8' width='7' height='20' fill='%230F1B2D'/%3E%3Crect x='23' width='7' height='28' fill='%230F1B2D'/%3E%3C/svg%3E">
 </head>
 <body data-page="home" data-auth="out">
 
 <main>
-<section class="hero"><div class="wrap">
+<section class="band wash tight address"><div class="wrap">
+  <h2>Where do you live? Enter your address for the best offers</h2>
+  <form id="avail-form"><label class="field">Street address and apartment<input id="avail-address" placeholder="123 Main St, Apt J, Milwaukee, WI 53202"></label><button class="btn lg" type="submit">Find My Plan</button></form>
+  <p class="small">Already a member? <a class="textlink" href="signin.html">Sign in here.</a></p>
+</div></section>
+
+<section class="band teal offer-hero" id="deals"><div class="wrap narrow">
   <div>
-    <h1>Fast, reliable home internet from Vantaline</h1>
-    <p>Internet 500 plus TV Select, with no annual contract and free installation.</p>
-    <div class="price">$89.99<small>/mo for 12 months</small></div>
-    <a class="btn" href="signin.html">Check availability</a>
-    <p class="fine">Promotional price for new customers, 12 months. After 12 months the regular rate applies (currently $127/mo for Internet 500 + TV Select, plus $15/mo gateway rental, taxes and fees). Pricing subject to change.</p>
+    <h1>Save on fast Wi-Fi + TV</h1>
+    <p class="lede">Internet, TV and free installation. From $55/mo for your first year.¹</p>
+    <div class="cta"><a class="btn light lg" href="#shop">Build your plan</a><a class="ulink" href="#legal">Pricing &amp; other info</a></div>
   </div>
-  <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 400 400"><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="6" stroke-linecap="round"><path d="M110 250a130 130 0 0 1 180 0"/><path d="M70 210a185 185 0 0 1 260 0" opacity=".7"/><path d="M30 170a240 240 0 0 1 340 0" opacity=".45"/></g><circle cx="200" cy="292" r="16" fill="#fff"/></svg></div>
-</div></section>
-<section class="section" id="internet"><div class="wrap">
-  <h2>Pick your speed</h2>
-  <div class="plans">
-    <div class="plan"><h3>Internet 300</h3><div class="p">$55<small>/mo</small></div><ul><li>300 Mbps download</li><li>Unlimited data</li></ul><p class="fine">12-month promotional price. Regular rate $70/mo.</p><a class="btn ghost" href="signin.html">Choose</a></div>
-    <div class="plan feat"><span class="tag">Most popular</span><h3>Internet 500 + TV Select</h3><div class="p">$89.99<small>/mo</small></div><ul><li>500 Mbps download</li><li>125+ channels</li><li>Free installation</li></ul><p class="fine">12-month promotional price. Regular rate $127/mo plus equipment.</p><a class="btn" href="signin.html">Choose</a></div>
-    <div class="plan"><h3>Gig Internet</h3><div class="p">$80<small>/mo</small></div><ul><li>1 Gbps download</li><li>Whole-home Wi-Fi included</li></ul><p class="fine">12-month promotional price. Regular rate $105/mo.</p><a class="btn ghost" href="signin.html">Choose</a></div>
+  <div class="cards2">
+    <div class="ocard"><h2>Internet 500 + TV Select with no annual contract</h2><p>500 Mbps, 125+ channels and free installation. Cancel anytime.</p>
+      <div class="price"><span class="d">$</span><span class="n">89</span><span class="c">.99</span><span class="per">/mo for<br>12 months¹</span></div></div>
+    <div class="ocard"><h2>Add a mobile line for $30/mo</h2><p>Unlimited talk, text and 5G data with Vantaline Internet. Bring your own phone.³</p>
+      <div class="price"><span class="d">$</span><span class="n">30</span><span class="per">/mo per line</span></div></div>
   </div>
 </div></section>
-<section class="section" id="tv" style="padding-top:0"><div class="wrap grid2">
-  <div class="card" id="mobile"><h3>Vantaline Mobile</h3><p class="muted" style="margin-top:8px">Add a line for $30/mo when you have Vantaline Internet.</p></div>
-  <div class="card"><h3>Already a customer?</h3><p class="muted" style="margin-top:8px">Sign in to view your bill, pay, and manage your services.</p><a class="btn ghost sm" style="margin-top:12px" href="signin.html">Sign in</a></div>
+<p class="fineprint wrap">¹New residential customers. Autopay and paperless billing required. Taxes and fees extra and subject to change. After 12 months the regular rate applies. Mobile requires Vantaline Internet. See offer terms below.</p>
+
+<section class="band" style="padding-top:30px" id="mobile"><div class="wrap narrow">
+  <div class="headrow"><div><h2>Switch to Vantaline Mobile and cut your bill in half</h2><p class="muted">Unlimited data and everything on one bill, with no contract.</p></div><div style="display:flex;gap:18px;align-items:center"><a class="btn" href="signin.html">Calculate savings</a><a class="ulink" href="#legal">Pricing &amp; other info</a></div></div>
+  <div class="feature"><div class="fc"><h3>Unlimited Mobile, $30 a line</h3><p class="lede" style="color:#C9D6E4">5G data, hotspot and Wi-Fi calling included. Bring your own phone and keep your number.³</p><a class="btn light" href="signin.html">Add a line</a></div>
+  <div class="fa"><div><b>$30</b><span>/mo per line with Internet</span></div></div></div>
+</div></section>
+
+<section class="band wash" id="shop"><div class="wrap narrow">
+  <div class="headrow"><div><h2>Shop by what you need</h2><p class="muted">All plans include unlimited data, free voicemail and 24/7 online support.</p></div></div>
+  <div class="tabs" role="tablist" aria-label="Shop categories">
+    <button role="tab" id="tab-net" aria-selected="true" aria-controls="panel-net">Internet</button>
+    <button role="tab" id="tab-tv" aria-selected="false" aria-controls="panel-tv">TV</button>
+    <button role="tab" id="tab-mob" aria-selected="false" aria-controls="panel-mob">Mobile</button>
+    <button role="tab" id="tab-bun" aria-selected="false" aria-controls="panel-bun">Bundles</button>
+  </div>
+  <div role="tabpanel" id="panel-net" aria-labelledby="tab-net"><div class="prow"><div><span class="tag">Most popular</span><h3>Internet 500 + TV Select</h3><p class="sub">500 Mbps with 125+ channels and free installation.</p></div><div><div class="big">$89.99<small>/mo for 12 mos¹</small></div></div><div><ul><li>500 Mbps download</li><li>125+ channels</li><li>Free installation</li><li>Gateway $15/mo²</li></ul></div><a class="btn" href="signin.html">Get this deal</a></div><div class="prow"><div><h3>Gig Internet</h3><p class="sub">1 Gbps with whole-home Wi-Fi included.</p></div><div><div class="big">$80<small>/mo for 12 mos¹</small></div></div><div><ul><li>1 Gbps download</li><li>Whole-home Wi-Fi</li><li>Unlimited data</li><li>No annual contract</li></ul></div><a class="btn ghost" href="signin.html">Choose plan</a></div><div class="prow"><div><h3>Internet 300</h3><p class="sub">300 Mbps for browsing, streaming and video calls.</p></div><div><div class="big">$55<small>/mo for 12 mos¹</small></div></div><div><ul><li>300 Mbps download</li><li>Unlimited data</li><li>Self-install kit</li><li>No annual contract</li></ul></div><a class="btn ghost" href="signin.html">Choose plan</a></div></div>
+  <div role="tabpanel" id="panel-tv" aria-labelledby="tab-tv" hidden><div class="prow"><div><span class="tag">Included in bundle</span><h3>TV Select</h3><p class="sub">125+ live channels, local networks and on-demand.</p></div><div><div class="big">$42<small>/mo add-on²</small></div></div><div><ul><li>125+ channels</li><li>On-demand library</li><li>Voice remote</li><li>2 set-top boxes</li></ul></div><a class="btn" href="signin.html">Add TV</a></div><div class="prow"><div><h3>Cloud DVR</h3><p class="sub">Record 200 hours without extra hardware.</p></div><div><div class="big">$10<small>/mo add-on</small></div></div><div><ul><li>200 hours storage</li><li>Record 6 shows at once</li><li>Watch on any screen</li></ul></div><a class="btn ghost" href="signin.html">Add DVR</a></div></div>
+  <div role="tabpanel" id="panel-mob" aria-labelledby="tab-mob" hidden><div class="prow"><div><span class="tag">With Vantaline Internet</span><h3>Unlimited Mobile</h3><p class="sub">Unlimited talk, text and 5G data on one bill.</p></div><div><div class="big">$30<small>/mo per line³</small></div></div><div><ul><li>Unlimited talk and text</li><li>5G data, 50 GB priority</li><li>Hotspot 15 GB</li><li>Bring your own phone</li></ul></div><a class="btn" href="signin.html">Add a line</a></div><div class="prow"><div><h3>Travel Pass</h3><p class="sub">Use your plan in 60+ countries for a day.</p></div><div><div class="big">$5<small>/day when used</small></div></div><div><ul><li>Pay only on days used</li><li>Keeps your number</li><li>Turn on or off in the app</li></ul></div><a class="btn ghost" href="signin.html">Learn more</a></div></div>
+  <div role="tabpanel" id="panel-bun" aria-labelledby="tab-bun" aria-labelledby="tab-bun" hidden><div class="prow"><div><span class="tag">Best value</span><h3>Internet + TV + Mobile</h3><p class="sub">Everything on one bill, one login, one support team.</p></div><div><div class="big">$139<small>/mo for 12 mos¹</small></div></div><div><ul><li>Internet 500</li><li>TV Select</li><li>1 Unlimited Mobile line</li><li>Free installation</li></ul></div><a class="btn" href="signin.html">Build bundle</a></div><div class="prow"><div><h3>Internet + Mobile</h3><p class="sub">Fast home Wi-Fi and one line, under $100.</p></div><div><div class="big">$95<small>/mo for 12 mos¹</small></div></div><div><ul><li>Internet 500</li><li>1 Unlimited Mobile line</li><li>Whole-home Wi-Fi add-on</li></ul></div><a class="btn ghost" href="signin.html">Build bundle</a></div></div>
+</div></section>
+
+<section class="band" id="compare"><div class="wrap narrow">
+  <div class="headrow"><div><h2>Compare internet plans</h2><p class="muted">Promotional prices for new customers. Regular rates apply after 12 months.</p></div></div>
+  <div class="tablewrap"><table class="cmp">
+    <thead><tr><th></th><th>Internet 300</th><th class="feat">Internet 500 + TV</th><th>Gig Internet</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Price, first 12 months</th><td><span class="pr">$55</span>/mo</td><td class="feat"><span class="pr">$89.99</span>/mo</td><td><span class="pr">$80</span>/mo</td></tr>
+      <tr><th scope="row">Regular rate</th><td>$70/mo</td><td class="feat">$127/mo</td><td>$105/mo</td></tr>
+      <tr><th scope="row">Download speed</th><td>300 Mbps</td><td class="feat">500 Mbps</td><td>1 Gbps</td></tr>
+      <tr><th scope="row">Upload speed</th><td>20 Mbps</td><td class="feat">35 Mbps</td><td>100 Mbps</td></tr>
+      <tr><th scope="row">TV</th><td>Add-on $42/mo</td><td class="feat">TV Select included</td><td>Add-on $42/mo</td></tr>
+      <tr><th scope="row">Wi-Fi gateway</th><td>$15/mo</td><td class="feat">$15/mo</td><td>Included</td></tr>
+      <tr><th scope="row">Installation</th><td>Self-install free</td><td class="feat">Free</td><td>Free</td></tr>
+      <tr><th scope="row">Annual contract</th><td>None</td><td class="feat">None</td><td>None</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section class="band tint"><div class="wrap narrow">
+  <div class="headrow"><div><h2>125+ channels on TV Select</h2><p class="muted">A sample of what is included. Channel lineup varies by area.</p></div></div>
+  <div class="chan" aria-label="Sample channels"><span>News 24</span><span>Sports 1</span><span>Cinema+</span><span>Kidzone</span><span>Home &amp; Chef</span><span>Nature</span><span>Musicbox</span><span>Local 5</span></div>
+</div></section>
+
+<section class="band wash tight"><div class="wrap narrow">
+  <div class="notecard"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><div><h3>Moving? Take Vantaline with you.</h3><p>Transfer your service, explore plans at your new address and get connected as soon as the same day.</p></div><a class="textlink" href="signin.html">Start your move</a></div>
+</div></section>
+
+<section class="band" id="legal"><div class="wrap narrow">
+  <div class="headrow"><h2>Offer terms</h2></div>
+  <div class="legal-block">
+    <p><b>¹ Promotional pricing.</b> Internet 500 + TV Select $89.99/mo, Gig Internet $80/mo and Internet 300 $55/mo are for new residential customers for 12 months with no annual contract. After 12 months the regular rate applies (currently $127/mo, $105/mo and $70/mo). Pricing subject to change.</p>
+    <p><b>² Equipment, taxes and fees.</b> Gateway rental is $15/mo unless included. TV Select requires at least one set-top box. Taxes, surcharges and fees are extra and vary by location. Regular rates and monthly fees are shown before any promotional discount.</p>
+    <p><b>³ Mobile.</b> $30/mo per Unlimited line requires an active Vantaline Internet plan. Priority data 50 GB per line, then speeds may be reduced during congestion. Hotspot 15 GB at 5G speeds.</p>
+    <p><b>Speeds.</b> Actual speeds vary by device, wiring, Wi-Fi conditions and network congestion. Wired speeds shown. Not all speeds available in all areas.</p>
+    <p><b>Demo notice.</b> Vantaline Communications is a fictional company. No real accounts, offers or payments.</p>
+  </div>
 </div></section>
 </main>
 <script src="site.js"></script>
 <script src="agent-sim.js"></script>
-
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('[role="tab"]'));
+  tabs.forEach(function(t){t.addEventListener("click",function(){
+    tabs.forEach(function(x){var on=x===t;x.setAttribute("aria-selected",on);document.getElementById(x.getAttribute("aria-controls")).hidden=!on;});
+  });});
+  var f=document.getElementById("avail-form");
+  f.addEventListener("submit",function(e){e.preventDefault();location.href="signin.html";});
+})();
+</script>
 <script src="qualtrics-deploy.js"></script>
 </body>
 </html>
