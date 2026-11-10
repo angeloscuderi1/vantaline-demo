@@ -1,8 +1,8 @@
 /*
  * Simulated Experience Agent: a backup for the future-state story.
  * Loads only when the demo bar is set to Story = Future and Agent = Backup.
- * Steps in when the bill page reports frustration (rage click) or after 20 seconds on the bill page.
- * It says what it noticed, says it is automated, and always offers a person.
+ * It never opens on its own. The bill page opens it when Maya asks a question
+ * or accepts help, and it picks up from what the page has already told her.
  */
 (function () {
   "use strict";
@@ -12,57 +12,47 @@
   var panel = document.createElement("section");
   panel.className = "chat-panel agent"; panel.hidden = true; panel.id = "agent-panel";
   panel.setAttribute("aria-label", "Vantaline assistant");
-  panel.innerHTML = '<header><div class="ttl"><span class="eye"><span class="pulse-dot" aria-hidden="true"></span><span id="agent-why"></span></span><span class="h">Let’s sort out your bill, Maya</span></div><button type="button" aria-label="Close" id="agent-close">✕</button></header>' +
+  panel.innerHTML = '<header><div class="ttl"><span class="eye" id="agent-why"></span><span class="h">Your September bill</span></div><button type="button" aria-label="Close" id="agent-close">✕</button></header>' +
     '<div class="agent-note"><span>Automated assistant</span><button type="button" id="agent-human">Talk to a person</button></div>' +
     '<div class="chat-log" id="agent-log" aria-live="polite"></div>' +
-    '<form class="chat-form" id="agent-form"><input id="agent-input" autocomplete="off" placeholder="Type a message" aria-label="Message"><button class="btn sm" type="submit">Send</button></form>';
+    '<form class="chat-form" id="agent-form"><input id="agent-input" autocomplete="off" placeholder="Type a question" aria-label="Message"><button class="btn sm" type="submit">Send</button></form>';
   document.body.appendChild(panel);
   panel.querySelector("#agent-close").addEventListener("click", function () { panel.hidden = true; });
   var log = panel.querySelector("#agent-log"), started = false, handed = false;
 
+  function trace(lane, title, detail, o) { if (VL.trace) VL.trace(lane, title, detail, o); }
+  function resolved(price, label, row, delta) {
+    document.dispatchEvent(new CustomEvent("vl:resolved", { detail: { price: price, label: label, row: row, delta: delta, via: "assistant" } }));
+  }
   function add(cls, html) { var d = document.createElement("div"); d.className = "cmsg " + cls; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
-  // A short "typing" beat before each reply, so the reply lands instead of just appearing.
-  function say(html, delay, cls) {
+  function say(html, delay) {
     var wait = delay || 900, dots = null;
     setTimeout(function () { dots = add("bot typing", "•••"); }, Math.max(0, wait - 700));
-    setTimeout(function () { if (dots) dots.remove(); add(cls || "bot", html); }, wait);
+    setTimeout(function () { if (dots) dots.remove(); add("bot", html); }, wait);
   }
-
-  function trace(lane, title, detail, o) { if (window.VL && VL.trace) VL.trace(lane, title, detail, o); }
-  function resolved(price, label, row, delta) {
-    document.dispatchEvent(new CustomEvent("vl:resolved", { detail: { price: price, label: label, row: row, delta: delta } }));
+  function chips(list) {
+    var c = add("bot", '<div class="chips">' + list.map(function (t) { return '<button type="button">' + t + "</button>"; }).join("") + "</div>");
+    c.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { handle(b.textContent); }); });
   }
-  var WHY = { rage: "We noticed a few quick clicks on your bill", time: "You’ve been on your bill for a bit", manual: "Here to help with your bill" };
 
   function start(reason) {
-    if (started) { panel.hidden = false; return; }
-    started = true;
-    panel.querySelector("#agent-why").textContent = WHY[reason] || WHY.manual;
     panel.hidden = false;
-    trace("action", "Assistant opened on the bill page", reason === "rage" ? "Trigger: frustration on the bill" : reason === "time" ? "Trigger: 20 seconds on the bill" : "Trigger: Maya asked for help");
-    trace("decision", "Three options cleared for Maya", "$119 for 12 months is within the assistant\u2019s authority. Anything lower needs a person.");
-    add("bot", "Hi Maya. Your 12-month promo ended on Sep 1. That is why your bill went from <b>$89.99</b> to <b>$146.40</b>. Nothing else changed.");
-    say("I can bring it back down right now. Here are your options:", 1100);
-    setTimeout(cards, 1900);
-  }
-
-  function cards() {
-    var c = add("bot wide", '<div class="ocards">' +
-      '<button type="button" class="rec" data-say="Keep everything for $119"><span class="px">$119<small>/mo</small></span><span class="nm">Keep everything <span class="tag">Recommended</span></span><span class="ds">Locked for 12 months, applies to this bill</span></button>' +
-      '<button type="button" data-say="Internet only for $85"><span class="px">$85<small>/mo</small></span><span class="nm">Internet 500 only</span><span class="ds">Drop TV, add it back anytime</span></button>' +
-      '<button type="button" data-say="Keep my current plan"><span class="px">$146.40</span><span class="nm">Keep my current plan</span><span class="ds">No changes</span></button></div>');
-    c.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { handle(b.dataset.say); }); });
-    var w = add("bot", '<div class="chips"><button type="button">Why wasn’t I told?</button></div>');
-    w.querySelector("button").addEventListener("click", function () { handle("Why wasn’t I told?"); });
+    if (started) return;
+    started = true;
+    panel.querySelector("#agent-why").textContent = "Picking up from your bill";
+    trace("action", "Assistant opened, with the bill context", "It knows she has seen the promo explanation, so it does not repeat it");
+    add("bot", "Hi Maya. I can see you’re looking at the promo change on your September bill, so I won’t go over it again. What would you like to know?");
+    setTimeout(function () { chips(["Why wasn’t I told?", "Can I get it lower than $119?", "Apply the $119 price lock"]); }, 500);
   }
 
   function human() {
-    if (handed) return; handed = true;
-    trace("signal", "Maya asked for a person", "No friction: the assistant steps aside");
+    panel.hidden = false;
+    if (handed) return; handed = true; started = true;
+    trace("signal", "Maya asked for a person", "The assistant steps aside");
     trace("action", "Handed to Jordan R., Retention", "Sent with the conversation, churn score and session replay, so she does not repeat herself", { status: "With a person" });
     say("Of course. I’m bringing in Jordan from our loyalty team. Jordan will see everything so far, so you won’t need to repeat anything.", 700);
-    setTimeout(function () { add("sys", "Handed off to Jordan R. (Retention) · summary, churn score and replay attached"); }, 2300);
-    setTimeout(function () { add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read your conversation. I can lock $119 for 12 months and add a $15 credit for the surprise."); }, 4300);
+    setTimeout(function () { add("sys", "Jordan R. (Retention) joined · has your bill and this conversation"); }, 2300);
+    setTimeout(function () { add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read through this. I can lock $119 for 12 months and add a $15 credit for the surprise. Want me to apply it?"); }, 4300);
   }
 
   function handle(text) {
@@ -71,48 +61,33 @@
     if (/person|human|agent|representative|someone/.test(t)) {
       human();
     } else if (/why/.test(t)) {
-      say("You should have been. We emailed you on Aug 11, but I can see it didn’t reach you in time. I’m sorry it came as a surprise, and I’ve passed that on.");
+      say("You should have been. We emailed you on Aug 11, but I can see it was never opened, and we didn’t follow up. I’m sorry it came as a surprise. I’ve passed that on.");
+      trace("memory", "Noted: the Aug 11 notice did not reach her", "Fed back to the billing communications team");
     } else if (/146|current plan|no thanks|nothing/.test(t)) {
       trace("memory", "Maya declined the options", "Saved to her record. No follow-up offers will be sent.", { status: "Declined, respected" });
-      say("No problem. Nothing changes, and I won’t ask again. These options stay on your Plans &amp; offers page if you change your mind.");
+      say("No problem. Nothing changes, and I won’t ask again. The options stay on your bill if you change your mind.");
     } else if (/\b(99|100|105|109)\b|cheaper|lower|less|too much|cancel/.test(t)) {
-      say("That’s below what I can approve on my own, so I’m bringing in Jordan from our loyalty team. Jordan will see everything we’ve discussed, so you won’t need to repeat anything.");
-      handed = true;
-      trace("decision", "Request is below the assistant’s limit", "Escalate to a person instead of saying no");
-      trace("action", "Handed to Jordan R., Retention", "Sent with the conversation, churn score and session replay", { status: "With a person" });
-      setTimeout(function () { add("sys", "Handed off to Jordan R. (Retention) · summary, churn score and replay attached"); }, 2400);
-      setTimeout(function () { add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read your conversation. I can’t get to $99, but I can lock $119 for 12 months and add a $15 credit for the surprise."); }, 4400);
+      trace("decision", "Request is below the assistant’s limit", "Bring in a person instead of saying no");
+      say("That’s below what I can approve on my own, so rather than say no I’ll bring in someone who can.", 800);
+      setTimeout(human, 1500);
     } else if (/85|internet only/.test(t)) {
       say("Done. You’re on Internet 500 only at $85/mo, starting with this bill. You can add TV back anytime.");
       resolved(85, "Internet 500 only", "TV Select removed, new plan price", -61.40);
-      setTimeout(pulse, 2400);
-    } else if (/119|keep everything/.test(t)) {
-      say("Done. You’re set at $119/mo for the next 12 months, starting with this bill. You’ll get a confirmation email shortly.");
+    } else if (/119|keep everything|apply|yes|ok|deal/.test(t)) {
+      say("Done. You’re set at $119/mo for the next 12 months, starting with this bill. You’ll see it update on the page now.");
       resolved(119, "Keep everything, 12-month price lock", "12-month price lock", -27.40);
-      setTimeout(pulse, 2400);
-    } else if (/ok|works|yes|deal|thanks/.test(t)) {
-      say("Great, it’s all set. Thanks for sticking with Vantaline.");
-      setTimeout(pulse, 2000);
+    } else if (/thanks|thank you/.test(t)) {
+      say("You’re welcome, Maya.");
     } else {
-      say("Here are the options I can set up right now:");
-      setTimeout(cards, 1500);
+      say("I can explain anything on this bill, apply one of the options listed under the promotional discount line, or bring in a person. Which would help?");
     }
-  }
-
-  function pulse() {
-    var c = add("bot", 'One quick question: how likely are you to recommend Vantaline to a friend? <div class="chips" style="margin-top:6px">' +
-      [0,1,2,3,4,5,6,7,8,9,10].map(function (n) { return '<button type="button">' + n + "</button>"; }).join("") + "</div>");
-    c.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { add("me", b.textContent); trace("outcome", "Pulse score " + b.textContent + " captured", "Sent to Qualtrics with the conversation attached"); say("Thank you, Maya. We’ve noted that the first email didn’t reach you in time, and we’ll pass that on."); }); });
   }
 
   panel.querySelector("#agent-human").addEventListener("click", function () { add("me", "Talk to a person"); human(); });
   panel.querySelector("#agent-form").addEventListener("submit", function (e) {
     e.preventDefault(); var i = panel.querySelector("#agent-input"); var v = i.value.trim(); if (!v) return; i.value = "";
-    if (!started) { started = true; panel.hidden = false; panel.querySelector("#agent-why").textContent = WHY.manual; }
-    handle(v);
+    started = true; handle(v);
   });
 
-  document.addEventListener("vl:frustration", function () { start("rage"); });
-  if (VL.page === "billing") setTimeout(function () { start("time"); }, 20000);
-  window.VLAgent = { open: function () { start("manual"); } };
+  window.VLAgent = { open: start, human: human };
 })();

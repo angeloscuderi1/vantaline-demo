@@ -81,7 +81,7 @@
       opts.map(function (o) { return '<button type="button" data-v="' + o[0] + '" aria-pressed="' + (o[0] === val) + '">' + o[1] + "</button>"; }).join("") + "</span></span>";
   }
   var hint = (document.body.dataset.page === "billing")
-    ? (MODE === "future" ? "Try it: click “Show line-item details” three times, fast, and watch Vantaline step in." : "Try it: click “Show line-item details” three times, fast. Nothing happens. Then switch Story to Future.")
+    ? (MODE === "future" ? "Help starts quiet and gets louder only if Maya struggles." : "Try it: click “Show line-item details” three times, fast. Nothing happens. Then switch Story to Future.")
     : "Vantaline Communications is a fictional company. No real accounts or payments.";
   demoBar.innerHTML = '<div class="wrap"><span class="msg"><b>Demo site.</b> <span class="long">' + hint + "</span></span>" +
     '<span class="ctl">' +
