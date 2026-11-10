@@ -28,6 +28,10 @@
     setTimeout(function () { if (dots) dots.remove(); add(cls || "bot", html); }, wait);
   }
 
+  function trace(lane, title, detail, o) { if (window.VL && VL.trace) VL.trace(lane, title, detail, o); }
+  function resolved(price, label, row, delta) {
+    document.dispatchEvent(new CustomEvent("vl:resolved", { detail: { price: price, label: label, row: row, delta: delta } }));
+  }
   var WHY = { rage: "We noticed a few quick clicks on your bill", time: "You’ve been on your bill for a bit", manual: "Here to help with your bill" };
 
   function start(reason) {
@@ -35,6 +39,8 @@
     started = true;
     panel.querySelector("#agent-why").textContent = WHY[reason] || WHY.manual;
     panel.hidden = false;
+    trace("action", "Assistant opened on the bill page", reason === "rage" ? "Trigger: frustration on the bill" : reason === "time" ? "Trigger: 20 seconds on the bill" : "Trigger: Maya asked for help");
+    trace("decision", "Three options cleared for Maya", "$119 for 12 months is within the assistant\u2019s authority. Anything lower needs a person.");
     add("bot", "Hi Maya. Your 12-month promo ended on Sep 1. That is why your bill went from <b>$89.99</b> to <b>$146.40</b>. Nothing else changed.");
     say("I can bring it back down right now. Here are your options:", 1100);
     setTimeout(cards, 1900);
@@ -52,6 +58,8 @@
 
   function human() {
     if (handed) return; handed = true;
+    trace("signal", "Maya asked for a person", "No friction: the assistant steps aside");
+    trace("action", "Handed to Jordan R., Retention", "Sent with the conversation, churn score and session replay, so she does not repeat herself", { status: "With a person" });
     say("Of course. I’m bringing in Jordan from our loyalty team. Jordan will see everything so far, so you won’t need to repeat anything.", 700);
     setTimeout(function () { add("sys", "Handed off to Jordan R. (Retention) · summary, churn score and replay attached"); }, 2300);
     setTimeout(function () { add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read your conversation. I can lock $119 for 12 months and add a $15 credit for the surprise."); }, 4300);
@@ -65,17 +73,22 @@
     } else if (/why/.test(t)) {
       say("You should have been. We emailed you on Aug 11, but I can see it didn’t reach you in time. I’m sorry it came as a surprise, and I’ve passed that on.");
     } else if (/146|current plan|no thanks|nothing/.test(t)) {
+      trace("memory", "Maya declined the options", "Saved to her record. No follow-up offers will be sent.", { status: "Declined, respected" });
       say("No problem. Nothing changes, and I won’t ask again. These options stay on your Plans &amp; offers page if you change your mind.");
     } else if (/\b(99|100|105|109)\b|cheaper|lower|less|too much|cancel/.test(t)) {
       say("That’s below what I can approve on my own, so I’m bringing in Jordan from our loyalty team. Jordan will see everything we’ve discussed, so you won’t need to repeat anything.");
       handed = true;
+      trace("decision", "Request is below the assistant’s limit", "Escalate to a person instead of saying no");
+      trace("action", "Handed to Jordan R., Retention", "Sent with the conversation, churn score and session replay", { status: "With a person" });
       setTimeout(function () { add("sys", "Handed off to Jordan R. (Retention) · summary, churn score and replay attached"); }, 2400);
       setTimeout(function () { add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read your conversation. I can’t get to $99, but I can lock $119 for 12 months and add a $15 credit for the surprise."); }, 4400);
     } else if (/85|internet only/.test(t)) {
       say("Done. You’re on Internet 500 only at $85/mo, starting with this bill. You can add TV back anytime.");
+      resolved(85, "Internet 500 only", "TV Select removed, new plan price", -61.40);
       setTimeout(pulse, 2400);
     } else if (/119|keep everything/.test(t)) {
       say("Done. You’re set at $119/mo for the next 12 months, starting with this bill. You’ll get a confirmation email shortly.");
+      resolved(119, "Keep everything, 12-month price lock", "12-month price lock", -27.40);
       setTimeout(pulse, 2400);
     } else if (/ok|works|yes|deal|thanks/.test(t)) {
       say("Great, it’s all set. Thanks for sticking with Vantaline.");
@@ -89,7 +102,7 @@
   function pulse() {
     var c = add("bot", 'One quick question: how likely are you to recommend Vantaline to a friend? <div class="chips" style="margin-top:6px">' +
       [0,1,2,3,4,5,6,7,8,9,10].map(function (n) { return '<button type="button">' + n + "</button>"; }).join("") + "</div>");
-    c.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { add("me", b.textContent); say("Thank you, Maya. We’ve noted that the first email didn’t reach you in time, and we’ll pass that on."); }); });
+    c.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { add("me", b.textContent); trace("outcome", "Pulse score " + b.textContent + " captured", "Sent to Qualtrics with the conversation attached"); say("Thank you, Maya. We’ve noted that the first email didn’t reach you in time, and we’ll pass that on."); }); });
   }
 
   panel.querySelector("#agent-human").addEventListener("click", function () { add("me", "Talk to a person"); human(); });

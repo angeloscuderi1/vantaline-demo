@@ -119,7 +119,7 @@
     '<div><h4>My account</h4><a href="signin.html">Sign in</a><a href="billing.html">Pay bill</a><a href="offers.html">Plans and offers</a><a href="account.html">Manage services</a></div>' +
     '<div><h4>Company</h4><a href="index.html">About Vantaline</a><a href="index.html">Careers</a><a href="index.html">Newsroom</a><a href="index.html">Investors</a></div>' +
     '<div><h4>Legal</h4><a href="index.html#legal">Offer terms</a><a href="index.html">Privacy</a><a href="index.html">Terms of service</a><a href="promo-email.html">Sample promo notice</a></div>' +
-    '</div><div class="legal"><span>© 2026 Vantaline Communications (fictional, for demonstration only)</span><span>Do not sell or share my personal information</span></div></div>';
+    '</div><div class="legal"><span>© 2026 Vantaline Communications (fictional, for demonstration only)</span><span>Photos by Vitaly Gariev on Unsplash · Do not sell or share my personal information</span></div></div>';
 
   document.body.prepend(head);
   document.body.prepend(demoBar);
