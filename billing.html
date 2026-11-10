@@ -36,8 +36,8 @@
         <div class="row"><span>Taxes &amp; fees</span><span>$4.40</span></div>
         <div class="row muted" id="promo-row"><span>Promotional discount</span><span>—</span></div>
         <div class="helper" id="bill-explain" hidden>
-          <p>Your 12-month promo ended on Sep 1. That is the whole <b class="up">$56.41</b> difference. Everything else is the same as August.</p>
-          <div class="h-cta" id="h-cta"><button class="btn sm" type="button" id="h-options">See ways to lower it</button><button class="textbtn" type="button" id="h-ask">Ask a question</button><button class="textbtn" type="button" id="h-person">Talk to a person</button></div>
+          <p id="h-lead">Your 12-month promo ended on Sep 1. That is the whole <b class="up">$56.41</b> difference. Everything else is the same as August.</p>
+          <button class="btn sm" type="button" id="h-options">See ways to lower it</button>
           <div class="h-opts" id="h-opts" hidden>
             <span class="h-sub">Pick one and it applies to this bill. You can change your mind later.</span>
             <button class="h-opt rec" type="button" data-price="119" data-label="Keep everything, 12-month price lock" data-row="12-month price lock" data-delta="-27.40"><span class="px">$119<small>/mo</small></span><span class="nm">Keep everything <span class="tag">Most popular</span></span><span class="ds">Same internet and TV, price locked for 12 months</span><span class="go">Apply</span></button>
@@ -45,6 +45,7 @@
             <button class="textbtn" type="button" id="h-keep">Keep my current plan at $146.40</button>
           </div>
           <div class="h-done" id="h-done" hidden></div>
+          <div class="h-cta" id="h-cta"><button class="textbtn" type="button" id="h-ask">Ask a question</button><button class="textbtn" type="button" id="h-person">Talk to a person</button></div>
         </div>
         <div class="row total" id="total-row"><span>Total</span><span id="total-amt">$146.40</span></div>
         <button class="linkbtn" type="button" id="line-item-toggle" aria-controls="bill-explain"><span>Show line-item details</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
@@ -64,62 +65,87 @@
 <script src="agent-sim.js"></script>
 <script>
 (function(){
-  /* Current state: the line-item toggle is broken on purpose and nothing helps. Three fast clicks are
+  /* Current state: the line-item link is broken on purpose and nothing helps. Three fast clicks are
      reported as frustration (session replay, Qualtrics targeting).
      Future state: one helper on the bill that gets louder only if Maya needs it.
        0 quiet    a calm line under the amount: "$56.41 more than last month. See why"
-       1 nudge    after a while without acting, that line becomes easier to spot
-       2 helper   on "See why" or frustration, the explanation opens under the promo line, then options
-       3 pop-up   only if she is still stuck after the helper has opened
-     The assistant never opens by itself; "Ask a question" or the pop-up opens it. */
+       1 nudge    after a while without acting, that line is gently highlighted
+       2 helper   on "See why" or frustration, the explanation slides open under the promo line, then options
+       3 pop-up   only if she then goes idle for 30 seconds without choosing, or shows frustration again
+     Every action answers at once (pressed and "Applying" states), nothing jumps, and the result is saved
+     so the account and offers pages agree. The assistant never opens by itself. */
   var VL=window.VL=window.VL||{}; VL.rageClicks=0;
-  var FUTURE=VL.mode==="future";
-  var t=document.getElementById("line-item-toggle"), ex=document.getElementById("bill-explain"), why=document.getElementById("bill-delta"),
-      promo=document.getElementById("promo-row"), opts=document.getElementById("h-opts"), done=document.getElementById("h-done"), cta=document.getElementById("h-cta");
-  var level=0, resolved=false, clicks=[], loudTimer=null;
+  var FUTURE=VL.mode==="future", CALM=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $=function(id){ return document.getElementById(id); };
+  var t=$("line-item-toggle"), ex=$("bill-explain"), why=$("bill-delta"), promo=$("promo-row"), opts=$("h-opts"), done=$("h-done"),
+      cta=$("h-cta"), more=$("h-options"), due=$("amount-due"), total=$("total-amt");
+  var level=0, resolved=false, assisted=false, clicks=[], loudTimer=null, busyTimer=null;
   function trace(l,ti,d,o){ if(VL.trace) VL.trace(l,ti,d,o); }
-  function setOpen(open){ ex.hidden=!open; t.setAttribute("aria-expanded",String(open)); why.setAttribute("aria-expanded",String(open)); t.classList.toggle("open",open); t.querySelector("span").textContent=open?"Hide line-item details":"Show line-item details"; }
+
+  /* Open or close a block by animating its height, so the rows below glide instead of jumping. */
+  function slide(el,open,then){
+    if(open===!el.hidden){ if(then) then(); return; }
+    if(CALM||!el.animate){ el.hidden=!open; if(then) then(); return; }
+    if(open) el.hidden=false;
+    var h=el.scrollHeight, cs=getComputedStyle(el), pt=cs.paddingTop, pb=cs.paddingBottom;
+    var shut={height:"0px",opacity:0,paddingTop:"0px",paddingBottom:"0px"}, full={height:h+"px",opacity:1,paddingTop:pt,paddingBottom:pb};
+    el.style.overflow="hidden";
+    var a=el.animate(open?[shut,full]:[full,shut],{duration:open?340:240,easing:"cubic-bezier(.2,.8,.2,1)"});
+    a.onfinish=function(){ el.style.overflow=""; if(!open) el.hidden=true; if(then) then(); };
+  }
+  function count(el,from,to){
+    if(CALM){ el.textContent="$"+to.toFixed(2); return; }
+    var s=null; (function f(ts){ if(!s) s=ts; var k=Math.min(1,(ts-s)/700); k=1-Math.pow(1-k,3);
+      el.textContent="$"+(from+(to-from)*k).toFixed(2); if(k<1) requestAnimationFrame(f); })(performance.now());
+  }
+  function setOpen(open){
+    t.setAttribute("aria-expanded",String(open)); why.setAttribute("aria-expanded",String(open)); t.classList.toggle("open",open);
+    t.querySelector("span").textContent=open?"Hide what changed":(level>=2?"Show what changed":"Show line-item details");
+    slide(ex,open,function(){ if(open){ var r=ex.getBoundingClientRect(); if(r.bottom>innerHeight-(document.body.classList.contains("trace-open")?150:12)||r.top<70){ try{ ex.scrollIntoView({block:"nearest",behavior:"smooth"}); }catch(e){} } } });
+  }
+  /* The pop-up waits for 30 seconds of real inactivity, never for someone who is reading or clicking. */
+  function armIdle(){ clearTimeout(loudTimer); if(FUTURE&&level===2&&!resolved&&!assisted) loudTimer=setTimeout(loud,30000); }
+  ["pointerdown","keydown","scroll","pointermove"].forEach(function(ev){ document.addEventListener(ev,armIdle,{passive:true}); });
 
   function nudge(){
-    if(level>=1||resolved) return; level=1;
-    why.classList.add("nudge"); why.innerHTML='Wondering why it\u2019s <b>$56.41</b> higher? <u>See what changed</u>';
+    if(level>=1||resolved) return; level=1; why.classList.add("nudge");
     trace("signal","A while on the bill without acting","Reads as hesitation, not frustration",{risk:70,status:"Noticing"});
     trace("action","Made the explanation easier to spot","Still no interruption");
   }
-  function openHelper(){
-    if(resolved){ setOpen(true); return; }
-    if(level<2){ level=2; why.classList.remove("nudge");
+  function openHelper(sorry){
+    if(level<2&&!resolved){ level=2; why.classList.remove("nudge"); why.classList.add("seen");
+      if(sorry) $("h-lead").innerHTML="<b>Sorry, that link wasn\u2019t loading.</b> Here is the short version: your 12-month promo ended on Sep 1. That is the whole <b class=\"up\">$56.41</b> difference. Everything else is the same as August.";
       promo.classList.add("lit"); promo.lastElementChild.innerHTML='<span class="ended"><s>−$56.41</s>Ended Sep 1</span>';
       trace("action","Explained the change on the bill itself","Under the promotional discount line, where the answer belongs");
-      clearTimeout(loudTimer); loudTimer=setTimeout(loud,30000);
+      armIdle();
     }
     setOpen(true);
-    try{ ex.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){}
   }
   function assist(person){
-    clearTimeout(loudTimer);
+    assisted=true; clearTimeout(loudTimer);
     if(VL.agent==="sim"){ if(window.VLAgent){ person?VLAgent.human():VLAgent.open(); } }
     else if(person){ location.href="support.html#contact"; }
     else { VL.qualtricsAssist=true; trace("action","Qualtrics Experience Agent requested","Bill page assist (future state) · targeting flag set");
       try{ if(window.QSI&&QSI.API){ QSI.API.unload(); QSI.API.load().then(function(){ QSI.API.run(); }); } }catch(e){} }
   }
   function loud(){
-    if(resolved||level!==2||document.getElementById("shock")) return; level=3;
+    if(resolved||assisted||level!==2||$("shock")) return; level=3;
     var w=document.createElement("div"); w.className="shock-wrap"; w.id="shock";
     w.innerHTML='<div class="shock" role="dialog" aria-modal="true" aria-labelledby="shock-h">'+
       '<button type="button" class="shock-x" aria-label="Close" data-a="close">✕</button>'+
       '<div class="shock-top"><h2 id="shock-h">Still not adding up, Maya?</h2>'+
-      '<p>You\u2019ve been on this bill for a while. We can go through it with you right now, and you won\u2019t have to explain it from the start.</p></div>'+
-      '<div class="shock-cta"><button type="button" class="btn lg" data-a="chat">Go through it with me</button><button type="button" class="btn ghost lg" data-a="person">Talk to a person</button></div>'+
+      '<p>We can go through this bill with you right now, and you won\u2019t have to explain it from the start.</p></div>'+
+      '<div class="shock-cta"><button type="button" class="btn lg" data-a="chat">Walk me through it</button><button type="button" class="btn ghost lg" data-a="person">Talk to a person</button></div>'+
       '<div class="shock-foot"><span>Automated message</span><button type="button" data-a="close">Not now</button></div></div>';
     document.body.appendChild(w);
     trace("decision","She is still stuck after the explanation","Now it is worth interrupting, once",{risk:86,status:"Offering help"});
     trace("action","Offered to go through it with her","Pop-up, with a person one tap away");
-    var last=document.activeElement; w.querySelector('[data-a="chat"]').focus();
-    function close(a){ w.remove(); document.removeEventListener("keydown",esc);
+    var last=document.activeElement, f=[].slice.call(w.querySelectorAll("button")); w.querySelector('[data-a="chat"]').focus();
+    function close(a){ w.remove(); document.removeEventListener("keydown",keys,true);
       if(a==="close"){ trace("memory","Maya said not now","No more prompts this visit"); try{ last&&last.focus(); }catch(e){} } }
-    function esc(e){ if(e.key==="Escape") close("close"); }
-    document.addEventListener("keydown",esc);
+    function keys(e){ if(e.key==="Escape"){ close("close"); return; }
+      if(e.key==="Tab"){ var i=f.indexOf(document.activeElement), n=e.shiftKey?(i<=0?f.length-1:i-1):(i===f.length-1?0:i+1); e.preventDefault(); f[n].focus(); } }
+    document.addEventListener("keydown",keys,true);
     w.addEventListener("click",function(e){
       var b=e.target.closest("[data-a]"); if(!b){ if(e.target===w) close("close"); return; }
       var a=b.dataset.a; close(a); if(a==="chat") assist(false); if(a==="person") assist(true);
@@ -133,52 +159,77 @@
     var rage=clicks.length>=3;
     if(rage){ clicks=[]; VL.rageClicks++; document.cookie="vl_rage=1;path=/;max-age=86400;SameSite=Lax";
       document.dispatchEvent(new CustomEvent("vl:frustration",{detail:{element:"line-item-toggle"}})); }
-    if(!FUTURE) return;                      /* current state: the control stays dead */
-    if(level>=2){ if(rage&&!resolved){ clearTimeout(loudTimer); loud(); } else setOpen(ex.hidden); return; }
-    if(rage){ trace("signal","3 fast clicks on \u201cShow line-item details\u201d","The control is not responding. Frustration on the bill page.",{risk:82,status:"Stepping in"}); openHelper(); }
+    if(!FUTURE) return;                      /* current state: the link stays dead */
+    if(level>=2||resolved){ if(rage&&!resolved){ clearTimeout(loudTimer); loud(); } else setOpen(ex.hidden); return; }
+    /* Before the helper has opened, the link behaves like a slow control: it tries, and gives up. */
+    t.classList.add("busy"); t.querySelector("span").textContent="Loading details\u2026";
+    clearTimeout(busyTimer); busyTimer=setTimeout(function(){ t.classList.remove("busy"); if(level<2) t.querySelector("span").textContent="Show line-item details"; },1600);
+    if(rage){ clearTimeout(busyTimer); t.classList.remove("busy");
+      trace("signal","3 fast clicks on \u201cShow line-item details\u201d","The link is not responding. Frustration on the bill page.",{risk:82,status:"Stepping in"}); openHelper(true); }
   });
+
+  function showOptions(){ slide(more,false,function(){ slide(opts,true); }); }
+  function finish(d,live){
+    var amt="$"+Number(d.price).toFixed(2), card=opts.querySelector('.h-opt[data-price="'+d.price+'"]');
+    resolved=true; clearTimeout(loudTimer); level=Math.max(level,2);
+    [].forEach.call(opts.children,function(c){ if(c!==card) c.hidden=true; });
+    if(card){ card.classList.remove("busy"); card.classList.add("chosen"); card.disabled=true; card.querySelector(".go").textContent="\u2713 Applied"; }
+    more.hidden=true; opts.hidden=false;
+    if(live){ count(due,146.40,d.price); count(total,146.40,d.price); } else { due.textContent=amt; total.textContent=amt; }
+    due.classList.add("fixed"); $("total-row").classList.add("fixed");
+    why.className="whyline ok"; why.disabled=true; why.hidden=false; why.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>'+(live?"Updated just now. Was $146.40":"New price applied. Was $146.40");
+    promo.className="row ok-row"; promo.innerHTML="<span>"+d.row+"</span><span>−$"+Math.abs(d.delta).toFixed(2)+"</span>";
+    $("h-lead").hidden=true;
+    done.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><p><b>'+amt+' a month, starting with this bill.</b> A confirmation is on its way to your email. We\u2019ll check in tomorrow to make sure this bill looks right to you.</p>';
+    if(live){ slide(done,true); if(ex.hidden) setOpen(true); } else { done.hidden=false; }
+  }
+  function kept(live){
+    resolved=true; clearTimeout(loudTimer); more.hidden=true; why.classList.remove("nudge");
+    done.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><p><b>No change made.</b> Your plan stays as it is, and we won\u2019t keep asking. These options are on your Plans &amp; offers page whenever you want them.</p>';
+    if(live){ slide(opts,false,function(){ slide(done,true); }); } else { opts.hidden=true; done.hidden=false; }
+  }
+
   if(FUTURE){
-    why.addEventListener("click",function(){ if(resolved) return; if(level<2) trace("signal","Maya tapped \u201cSee why\u201d","She asked, so the page answers"); openHelper(); });
-    setTimeout(nudge,12000);
-    document.getElementById("h-options").addEventListener("click",function(){
-      opts.hidden=false; this.hidden=true; ex.insertBefore(cta,done); clearTimeout(loudTimer); loudTimer=setTimeout(loud,30000);
+    why.addEventListener("click",function(){ if(resolved) return; if(level<2) trace("signal","Maya tapped \u201cSee why\u201d","She asked, so the page answers"); if(level>=2) setOpen(ex.hidden); else openHelper(); });
+    more.addEventListener("click",function(){
+      showOptions();
       trace("decision","Three options cleared for Maya","Eligibility, margin and contact limits checked. $119 for 12 months needs no approval.");
       trace("action","Options shown in the same place","No new window, no hand-off");
     });
-    document.getElementById("h-ask").addEventListener("click",function(){ trace("signal","Maya wants to ask something","Open the assistant with the bill context"); assist(false); });
-    document.getElementById("h-person").addEventListener("click",function(){ assist(true); });
+    $("h-ask").addEventListener("click",function(){ trace("signal","Maya wants to ask something","Open the assistant with the bill context"); assist(false); });
+    $("h-person").addEventListener("click",function(){ assist(true); });
     opts.addEventListener("click",function(e){
-      var b=e.target.closest(".h-opt"); if(!b) return;
+      var b=e.target.closest(".h-opt"); if(!b||resolved||opts.classList.contains("working")) return;
+      opts.classList.add("working"); b.classList.add("busy"); b.querySelector(".go").textContent="Applying\u2026";
       trace("signal","Maya chose \u201c"+b.querySelector(".nm").firstChild.textContent.trim()+"\u201d","Picked on the bill, no conversation needed");
-      document.dispatchEvent(new CustomEvent("vl:resolved",{detail:{price:+b.dataset.price,label:b.dataset.label,row:b.dataset.row,delta:+b.dataset.delta}}));
+      setTimeout(function(){ document.dispatchEvent(new CustomEvent("vl:resolved",{detail:{price:+b.dataset.price,label:b.dataset.label,row:b.dataset.row,delta:+b.dataset.delta}})); },750);
     });
-    document.getElementById("h-keep").addEventListener("click",function(){
-      clearTimeout(loudTimer); resolved=true; opts.hidden=true; done.hidden=false;
-      done.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><p><b>No change made.</b> Your plan stays as it is, and we won\u2019t keep asking. These options are on your Plans &amp; offers page whenever you want them.</p>';
+    $("h-keep").addEventListener("click",function(){
+      if(resolved) return; VL.setPlan({keep:true}); kept(true);
       trace("memory","Maya kept her current plan","Saved to her record. No follow-up offers will be sent.",{status:"Declined, respected"});
     });
   }
 
-  /* When an option is applied (on the bill or by the assistant), the bill updates where it stands. */
+  /* When an option is applied (on the bill or by the assistant), the bill updates where it stands, and the choice is saved. */
   document.addEventListener("vl:resolved",function(e){
-    if(resolved) return; resolved=true; clearTimeout(loudTimer);
-    var d=e.detail, amt="$"+Number(d.price).toFixed(2), due=document.getElementById("amount-due");
-    setTimeout(function(){
-      due.textContent=amt; due.classList.add("fixed");
-      why.className="whyline ok"; why.disabled=true; why.hidden=false; why.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Updated just now. Was $146.40';
-      promo.className="row ok-row"; promo.innerHTML="<span>"+d.row+"</span><span>−$"+Math.abs(d.delta).toFixed(2)+"</span>";
-      document.getElementById("total-amt").textContent=amt; document.getElementById("total-row").classList.add("fixed");
-      opts.hidden=true; cta.hidden=true; done.hidden=false; setOpen(true);
-      ex.querySelector("p").hidden=true;
-      done.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><p><b>Done. '+amt+' a month, starting with this bill.</b> A confirmation is on its way to your email. We\u2019ll check in tomorrow to make sure this bill looks right to you.</p>';
-      trace("action","New price applied in billing",d.label+" · "+amt+" a month");
-      trace("action","Case CS0051877 opened and closed","Logged in ServiceNow with what she saw and chose");
-      trace("action","Confirmation sent, check-in set for tomorrow","One question by email, not a survey on the spot");
-      trace("outcome","Resolved on the bill page",d.via==="assistant"?"With the assistant, no call, no transfer":"Self-served in place, no chat, no call",{risk:31,status:"Resolved"});
-    },900);
+    if(resolved) return; var d=e.detail; opts.classList.remove("working");
+    VL.setPlan({price:d.price,label:d.label,row:d.row,delta:d.delta});
+    finish(d,true);
+    trace("action","New price applied in billing",d.label+" · $"+Number(d.price).toFixed(2)+" a month");
+    trace("action","Case CS0051877 opened and closed","Logged in ServiceNow with what she saw and chose");
+    trace("action","Confirmation sent, check-in set for tomorrow","One question by email, not a survey on the spot");
+    trace("outcome","Resolved on the bill page",d.via==="assistant"?"With the assistant, no call, no transfer":"Self-served in place, no chat, no call",{risk:31,status:"Resolved"});
   });
-  document.getElementById("pay").addEventListener("click",function(e){e.preventDefault();});
-  document.getElementById("download-pdf").addEventListener("click",function(e){e.preventDefault();});
+
+  /* Coming back to the page: show what she already chose instead of starting over. */
+  var saved=VL.getPlan&&VL.getPlan();
+  if(saved&&saved.price){ finish(saved,false); ex.hidden=false; t.classList.add("open"); t.setAttribute("aria-expanded","true"); t.querySelector("span").textContent="Hide what changed";
+    trace("memory","Returning visit: her new price is already in place","Nothing to offer, nothing to interrupt",{risk:31,status:"Resolved"}); }
+  else if(saved&&saved.keep){ resolved=true; }
+  else if(FUTURE){ setTimeout(nudge,12000); }
+
+  $("pay").addEventListener("click",function(e){e.preventDefault();});
+  $("download-pdf").addEventListener("click",function(e){e.preventDefault();});
 })();
 </script>
 <script src="qualtrics-deploy.js"></script>

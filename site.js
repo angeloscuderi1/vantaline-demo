@@ -127,7 +127,10 @@
   document.body.appendChild(foot);
 
   // Demo controls: changing the story or the agent reloads the page clean (no ?mode= left in the address).
-  function go() { try { document.cookie = "vl_rage=;path=/;max-age=0"; } catch (e) {} location.href = location.pathname; }
+  // One shared record of what Maya chose, so every page agrees. Reset and story changes clear it.
+  window.VL.getPlan = function () { try { return JSON.parse(localStorage.getItem("vl_plan") || "null"); } catch (e) { return null; } };
+  window.VL.setPlan = function (p) { try { if (p) localStorage.setItem("vl_plan", JSON.stringify(p)); else localStorage.removeItem("vl_plan"); } catch (e) {} };
+  function go() { try { document.cookie = "vl_rage=;path=/;max-age=0"; document.cookie = "vl_offer=;path=/;max-age=0"; } catch (e) {} window.VL.setPlan(null); location.href = location.pathname; }
   [["vl-mode", "vl_mode"], ["vl-agent", "vl_agent"]].forEach(function (p) {
     document.getElementById(p[0]).addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b || b.getAttribute("aria-pressed") === "true") return;
