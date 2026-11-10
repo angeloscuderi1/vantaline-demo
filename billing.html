@@ -18,6 +18,7 @@
     <div class="panel"><header><h2>Amount due</h2><a class="textlink" href="#" id="download-pdf" aria-disabled="true">Download PDF</a></header>
       <div class="pad stack" style="gap:12px">
         <span class="big" id="amount-due">$146.40</span>
+        <span class="delta" id="bill-delta" data-mode="future"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg>$56.41 more than last month</span>
         <span class="muted">Due Sep 21 · Autopay off</span>
         <span class="muted" style="font-size:14px">Last month: $89.99</span>
         <a class="textlink" href="bill-faq.html" id="why-changed" style="align-self:flex-start">Why did my bill change?</a>
@@ -33,9 +34,16 @@
         <div class="row"><span>TV Select</span><span>$42.00</span></div>
         <div class="row"><span>Gateway rental</span><span>$15.00</span></div>
         <div class="row"><span>Taxes &amp; fees</span><span>$4.40</span></div>
-        <div class="row muted"><span>Promotional discount</span><span>—</span></div>
-        <div class="row total"><span>Total</span><span>$146.40</span></div>
-        <button class="linkbtn" type="button" id="line-item-toggle"><span>Show line-item details</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="row muted" id="promo-row"><span>Promotional discount</span><span>—</span></div>
+        <div class="row total" id="total-row"><span>Total</span><span id="total-amt">$146.40</span></div>
+        <button class="linkbtn" type="button" id="line-item-toggle" aria-controls="bill-explain"><span>Show line-item details</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="explain" id="bill-explain" hidden>
+          <div class="explain-head"><span class="pulse-dot" aria-hidden="true"></span>Here is what changed since August</div>
+          <div class="explain-row"><span><b>Promotional discount</b><small>Your 12-month promo ended Sep 1</small></span><span class="was"><s>−$56.41</s><b>$0.00</b></span></div>
+          <div class="explain-row"><span><b>Internet, TV, gateway, taxes</b><small>Same as last month</small></span><span class="same">No change</span></div>
+          <p>That one line is the whole $56.41 difference. You can bring it back down today.</p>
+          <div class="explain-cta"><a class="btn" href="offers.html">See my options</a><a class="textlink" href="support.html#contact">Talk to a person</a></div>
+        </div>
       </div>
       <div class="panel"><header><h2>Bill history</h2><span class="label">Last 6 statements</span></header><div class="chart"><svg viewBox="0 0 520 200" role="img" aria-label="Monthly bill, April to September. Five months at $89.99, then $146.40 in September."><line x1="40" x2="520" y1="170.0" y2="170.0" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="173.0">$0</text><line x1="40" x2="520" y1="123.1" y2="123.1" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="126.1">$50</text><line x1="40" x2="520" y1="76.2" y2="76.2" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="79.2">$100</text><line x1="40" x2="520" y1="29.4" y2="29.4" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="32.4">$150</text><rect x="40.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="65.0" y="79.6" text-anchor="middle">$89.99</text><text x="65.0" y="186" text-anchor="middle">Apr</text><rect x="126.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="151.0" y="79.6" text-anchor="middle">$89.99</text><text x="151.0" y="186" text-anchor="middle">May</text><rect x="212.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="237.0" y="79.6" text-anchor="middle">$89.99</text><text x="237.0" y="186" text-anchor="middle">Jun</text><rect x="298.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="323.0" y="79.6" text-anchor="middle">$89.99</text><text x="323.0" y="186" text-anchor="middle">Jul</text><rect x="384.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="409.0" y="79.6" text-anchor="middle">$89.99</text><text x="409.0" y="186" text-anchor="middle">Aug</text><rect x="470.0" y="32.8" width="50" height="137.2" rx="3" fill="#F2554A"/><text class="val now" x="495.0" y="26.8" text-anchor="middle">$146.40</text><text x="495.0" y="186" text-anchor="middle">Sep</text></svg></div></div>
       <div class="panel"><header><h2>Payment history</h2></header>
@@ -48,20 +56,94 @@
   </div>
 </div></main>
 <script src="site.js"></script>
+<script src="agent-trace.js"></script>
 <script src="agent-sim.js"></script>
 <script>
 (function(){
   /* The line-item toggle is intentionally broken for the story: it does nothing.
      Repeated clicks are reported as frustration for Qualtrics targeting and the simulated agent. */
   var t=document.getElementById("line-item-toggle"), clicks=[];
+  var ex=document.getElementById("bill-explain"), sum=document.getElementById("bill-summary"), explained=false;
   window.VL=window.VL||{}; window.VL.rageClicks=0;
+  function setOpen(open){ ex.hidden=!open; t.setAttribute("aria-expanded",String(open)); t.classList.toggle("open",open); t.querySelector("span").textContent=open?"Hide line-item details":"Show line-item details"; }
+  /* Future state: once frustration is detected, the page itself answers. The bill summary is spotlit for a moment
+     and the line that changed is explained in place. After that the toggle works normally. */
+  function explain(quiet){
+    if(explained) return; explained=true; setOpen(true);
+    var sh=document.getElementById("shock"); if(sh) sh.remove();
+    document.getElementById("promo-row").classList.add("flag"); sum.classList.add("spot");
+    var s=document.createElement("div"); s.className="vl-scrim"; if(!quiet) document.body.appendChild(s);
+    setTimeout(function(){ s.remove(); sum.classList.remove("spot"); },2800);
+    try{ sum.scrollIntoView({block:"nearest",behavior:"smooth"}); }catch(e){}
+  }
   t.addEventListener("click",function(){
+    if(explained){ setOpen(ex.hidden); return; }
     var now=Date.now(); clicks=clicks.filter(function(c){return now-c<2000}); clicks.push(now);
     if(clicks.length>=3){ clicks=[]; window.VL.rageClicks++; document.cookie="vl_rage=1;path=/;max-age=86400;SameSite=Lax";
       document.dispatchEvent(new CustomEvent("vl:frustration",{detail:{element:"line-item-toggle"}}));
+      if(window.VL.mode==="future") explain();
       /* Future state with the Qualtrics agent: flag the moment and re-run Qualtrics targeting so the bill-page intercept can show. */
       if(window.VL.mode==="future" && window.VL.agent!=="sim"){ window.VL.qualtricsAssist=true;
         try{ if(window.QSI&&QSI.API){ QSI.API.unload(); QSI.API.load().then(function(){ QSI.API.run(); }); } }catch(e){} } }
+  });
+  function trace(l,t,d,o){ if(window.VL&&VL.trace) VL.trace(l,t,d,o); }
+  document.addEventListener("vl:frustration",function(){
+    trace("signal","3 fast clicks on “Show line-item details”","The control does nothing. Frustration detected on the bill page.",{risk:82,status:"Stepping in"});
+    if(window.VL.mode==="future"){
+      trace("decision","Answer on the page, then offer help","Explain the one line that changed before offering anything");
+      trace("action","Bill summary explained in place","Promo discount ended Sep 1: $56.41");
+      if(window.VL.agent!=="sim") trace("action","Qualtrics intercept requested","Bill page assist (future state) · targeting flag set");
+    }
+  });
+
+  /* Future state: a bill-shock pop-up shortly after the page loads, before any frustration. */
+  function assist(){
+    if(window.VL.agent==="sim"){ if(window.VLAgent) window.VLAgent.open(); }
+    else { window.VL.qualtricsAssist=true; trace("action","Qualtrics intercept requested","Bill page assist (future state) · targeting flag set");
+      try{ if(window.QSI&&QSI.API){ QSI.API.unload(); QSI.API.load().then(function(){ QSI.API.run(); }); } }catch(e){} }
+  }
+  function popup(){
+    if(explained||document.getElementById("shock")) return;
+    var w=document.createElement("div"); w.className="shock-wrap"; w.id="shock";
+    w.innerHTML='<div class="shock" role="dialog" aria-modal="true" aria-labelledby="shock-h">'+
+      '<button type="button" class="shock-x" aria-label="Close" data-a="close">✕</button>'+
+      '<div class="shock-top"><span class="shock-eye"><span class="pulse-dot" aria-hidden="true"></span>A heads-up about this bill</span>'+
+      '<h2 id="shock-h">Your bill is $56.41 higher this month, Maya.</h2>'+
+      '<p>Your 12-month promo ended on Sep 1. Nothing else changed, and you can bring it back down in about a minute.</p></div>'+
+      '<div class="shock-bars" aria-hidden="true"><div><i style="height:61%"></i><b>$89.99</b><span>August</span></div><div class="now"><i style="height:100%"></i><b>$146.40</b><span>September</span></div>'+
+      '<div class="fix"><i style="height:81%"></i><b>$119</b><span>With a price lock</span></div></div>'+
+      '<div class="shock-cta"><button type="button" class="btn lg" data-a="fix">Lower my bill</button><button type="button" class="btn ghost lg" data-a="see">Show me what changed</button></div>'+
+      '<div class="shock-foot"><span>Automated message</span><a href="support.html#contact">Talk to a person</a><button type="button" data-a="close">Not now</button></div></div>';
+    document.body.appendChild(w);
+    trace("action","Bill-shock pop-up shown","Before Maya has to go looking for an answer");
+    var last=document.activeElement; w.querySelector('[data-a="fix"]').focus();
+    function close(why){ w.remove(); document.removeEventListener("keydown",esc); if(why==="close"){ trace("memory","Maya closed the pop-up","It will not show again this visit. The page keeps watching for trouble."); try{ last&&last.focus(); }catch(e){} } }
+    function esc(e){ if(e.key==="Escape") close("close"); }
+    document.addEventListener("keydown",esc);
+    w.addEventListener("click",function(e){
+      var b=e.target.closest("[data-a]"); if(!b){ if(e.target===w) close("close"); return; }
+      var a=b.dataset.a, label=b.textContent; close(a);
+      if(a==="see"||a==="fix"){ trace("signal","Maya tapped “"+label+"”","She engaged with the pop-up"); explain(true); }
+      if(a==="fix") assist();
+    });
+  }
+  if(window.VL.mode==="future") setTimeout(popup,1600);
+
+  /* When the agent fixes it, the bill itself updates on the page. */
+  document.addEventListener("vl:resolved",function(e){
+    var d=e.detail, amt="$"+Number(d.price).toFixed(2);
+    var due=document.getElementById("amount-due"), delta=document.getElementById("bill-delta"), pr=document.getElementById("promo-row");
+    setTimeout(function(){
+      due.textContent=amt; due.classList.add("fixed");
+      delta.className="delta ok"; delta.hidden=false; delta.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Updated just now · was $146.40';
+      pr.className="row ok-row"; pr.innerHTML="<span>"+d.row+"</span><span>−$"+Math.abs(d.delta).toFixed(2)+"</span>";
+      document.getElementById("total-amt").textContent=amt; document.getElementById("total-row").classList.add("fixed");
+      if(!ex.hidden) setOpen(false);
+      trace("action","New price applied in billing",d.label+" · "+amt+" a month, starting with this bill");
+      trace("action","Case CS0051877 opened and closed","Logged in ServiceNow with the conversation attached");
+      trace("action","Confirmation email queued","To maya.torres@example.com");
+      trace("outcome","Resolved on the bill page","One touch, no call, no transfer",{risk:31,status:"Resolved"});
+    },1200);
   });
   document.getElementById("pay").addEventListener("click",function(e){e.preventDefault();});
   document.getElementById("download-pdf").addEventListener("click",function(e){e.preventDefault();});
