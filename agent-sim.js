@@ -37,19 +37,25 @@
   function focusInput() { setTimeout(function () { try { panel.querySelector("#agent-input").focus({ preventScroll: true }); } catch (e) {} }, 450); }
   var pending = false;   // true only while an offer is on the table, so a bare "yes" never applies anything by accident
 
-  function start(reason) {
-    panel.hidden = false; focusInput();
-    if (started) return;
+  function greet(askFirst) {
     started = true;
     panel.querySelector("#agent-why").textContent = "Picking up from your bill";
     trace("action", "Assistant opened, with the bill context", "It knows she has seen the promo explanation, so it does not repeat it");
-    add("bot", "Hi Maya. I can see you’re looking at the promo change on your September bill, so I won’t go over it again. What would you like to know?");
+    add("bot", "Hi Maya. I can see you’re looking at the promo change on your September bill, so I won’t go over it again." + (askFirst === false ? "" : " What would you like to know?"));
+  }
+
+  function start(reason) {
+    panel.hidden = false; focusInput();
+    if (started) return;
+    greet();
     setTimeout(function () { chips(["Why wasn’t I told?", "Can I get it lower than $119?", "Apply the $119 price lock"]); }, 500);
   }
 
   function human(quiet) {
     panel.hidden = false; focusInput();
-    if (handed) return; handed = true; started = true;
+    if (handed) return; handed = true;
+    if (!started) greet(false);   // opened from "Talk to a person" on the bill: show the chat it started from first
+    started = true;
     trace("signal", "Maya asked for a person", "The assistant steps aside");
     trace("action", "Handed to Jordan R., Retention", "Sent with the conversation, churn score and session replay, so she does not repeat herself", { status: "With a person" });
     if (quiet !== true) say("Of course. I’m bringing in Jordan from our loyalty team. Jordan will see everything so far, so you won’t need to repeat anything.", 700);
