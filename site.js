@@ -59,6 +59,7 @@
     sym("tool", '<path d="M14.5 6.5a4 4 0 0 0 5 5L20 13 13 20a2.1 2.1 0 0 1-3-3l7-7z"/>') +
     sym("clock", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>') +
     sym("tag", '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>') +
+    sym("menu", '<path d="M4 7h16M4 12h16M4 17h16"/>') +
     sym("user", '<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>') +
     "</defs></svg>";
   function sym(id, body) { return '<symbol id="i-' + id + '" viewBox="0 0 24 24">' + body + "</symbol>"; }
@@ -75,11 +76,19 @@
 
   var demoBar = document.createElement("div");
   demoBar.className = "demo-bar";
-  demoBar.innerHTML = '<div class="wrap"><span><b>Demo site.</b> Vantaline Communications is a fictional company. No real accounts or payments.</span>' +
-    '<span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' +
-    '<label>Story <select id="vl-mode"><option value="current">Current state</option><option value="future">Future state</option></select></label>' +
-    '<label>Agent <select id="vl-agent"><option value="qualtrics">Qualtrics</option><option value="sim">Simulated backup</option></select></label>' +
-    '<a href="servicenow.html" style="color:#C9D3DC">Case console</a></span></div>';
+  function seg(id, label, opts, val) {
+    return '<span class="grp"><span class="lbl" id="' + id + '-l">' + label + '</span><span class="seg" role="group" aria-labelledby="' + id + '-l" id="' + id + '">' +
+      opts.map(function (o) { return '<button type="button" data-v="' + o[0] + '" aria-pressed="' + (o[0] === val) + '">' + o[1] + "</button>"; }).join("") + "</span></span>";
+  }
+  var hint = (document.body.dataset.page === "billing")
+    ? (MODE === "future" ? "Try it: click “Show line-item details” three times, fast, and watch Vantaline step in." : "Try it: click “Show line-item details” three times, fast. Nothing happens. Then switch Story to Future.")
+    : "Vantaline Communications is a fictional company. No real accounts or payments.";
+  demoBar.innerHTML = '<div class="wrap"><span class="msg"><b>Demo site.</b> <span class="long">' + hint + "</span></span>" +
+    '<span class="ctl">' +
+    seg("vl-mode", "Story", [["current", "Current"], ["future", "Future"]], MODE) +
+    seg("vl-agent", "Agent", [["qualtrics", "Qualtrics"], ["sim", "Backup"]], AGENT) +
+    '<button type="button" class="reset" id="vl-reset">Reset</button>' +
+    '<a href="servicenow.html"><span class="long">Case console</span><span class="short">Cases</span></a></span></div>';
 
   var head = document.createElement("header");
   head.className = "site-head";
@@ -93,9 +102,13 @@
     item("Support", "support.html", "support",
       m("support.html", "Support center", "Answers, outages, how-tos") + m("bill-faq.html", "Understanding your bill") + m("support.html#contact", "Contact us")) +
     "</nav>" +
-        '<div class="head-cta"><a class="icon-btn" href="support.html" aria-label="Search">' + ic("search") + '</a><a class="icon-btn hide-m" href="support.html" aria-label="Find a store">' + ic("pin") + '</a>' + (signedIn
+    '<div class="head-cta"><a class="icon-btn" href="support.html" aria-label="Search">' + ic("search") + '</a><a class="icon-btn hide-m" href="support.html" aria-label="Find a store">' + ic("pin") + '</a>' + (signedIn
       ? '<a class="plain hide-m" href="billing.html">Pay bill</a><a class="plain" href="account.html" style="display:flex;gap:8px;align-items:center"><span class="avatar">MT</span><span class="hide-m">Maya</span></a>'
-      : '<a class="plain" href="signin.html">Sign In</a>') + "</div></div>";
+      : '<a class="plain" href="signin.html">Sign In</a>') +
+    '<button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="mnav">' + ic("menu") + "</button></div></div>" +
+    '<nav class="mnav" id="mnav" aria-label="Menu" hidden><div class="wrap">' +
+    (signedIn ? '<a href="account.html"' + cur("account") + '>My account</a><a href="billing.html"' + cur("billing") + '>Bill &amp; payments</a><a href="offers.html"' + cur("offers") + '>Plans &amp; offers</a>' : '<a href="signin.html">Sign in</a>') +
+    '<a href="index.html#shop">Internet</a><a href="index.html#shop">TV</a><a href="index.html#mobile">Mobile</a><a href="index.html#deals">Deals</a><a href="support.html"' + cur("support") + '>Support</a><a href="bill-faq.html"' + cur("bill-faq") + ">Understanding your bill</a></div></nav>";
 
   var foot = document.createElement("footer");
   foot.className = "site-foot";
@@ -113,10 +126,20 @@
   document.body.insertAdjacentHTML("afterbegin", SPRITE);
   document.body.appendChild(foot);
 
-  var modeSel = document.getElementById("vl-mode"), agentSel = document.getElementById("vl-agent");
-  modeSel.value = MODE; agentSel.value = AGENT;
-  modeSel.addEventListener("change", function () { writePref("vl_mode", modeSel.value); location.reload(); });
-  agentSel.addEventListener("change", function () { writePref("vl_agent", agentSel.value); location.reload(); });
+  // Demo controls: changing the story or the agent reloads the page clean (no ?mode= left in the address).
+  function go() { try { document.cookie = "vl_rage=;path=/;max-age=0"; } catch (e) {} location.href = location.pathname; }
+  [["vl-mode", "vl_mode"], ["vl-agent", "vl_agent"]].forEach(function (p) {
+    document.getElementById(p[0]).addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b || b.getAttribute("aria-pressed") === "true") return;
+      writePref(p[1], b.dataset.v); go();
+    });
+  });
+  document.getElementById("vl-reset").addEventListener("click", go);
+
+  // Phone and tablet menu.
+  var menuBtn = document.getElementById("menu-btn"), mnav = document.getElementById("mnav");
+  menuBtn.addEventListener("click", function () { mnav.hidden = !mnav.hidden; menuBtn.setAttribute("aria-expanded", String(!mnav.hidden)); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !mnav.hidden) { mnav.hidden = true; menuBtn.setAttribute("aria-expanded", "false"); menuBtn.focus(); } });
 
   // Fill any [data-cust] placeholders.
   document.querySelectorAll("[data-cust]").forEach(function (el) {

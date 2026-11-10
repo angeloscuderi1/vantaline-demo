@@ -33,9 +33,16 @@
         <div class="row"><span>TV Select</span><span>$42.00</span></div>
         <div class="row"><span>Gateway rental</span><span>$15.00</span></div>
         <div class="row"><span>Taxes &amp; fees</span><span>$4.40</span></div>
-        <div class="row muted"><span>Promotional discount</span><span>—</span></div>
+        <div class="row muted" id="promo-row"><span>Promotional discount</span><span>—</span></div>
         <div class="row total"><span>Total</span><span>$146.40</span></div>
-        <button class="linkbtn" type="button" id="line-item-toggle"><span>Show line-item details</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <button class="linkbtn" type="button" id="line-item-toggle" aria-controls="bill-explain"><span>Show line-item details</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="explain" id="bill-explain" hidden>
+          <div class="explain-head"><span class="pulse-dot" aria-hidden="true"></span>Here is what changed since August</div>
+          <div class="explain-row"><span><b>Promotional discount</b><small>Your 12-month promo ended Sep 1</small></span><span class="was"><s>−$56.41</s><b>$0.00</b></span></div>
+          <div class="explain-row"><span><b>Internet, TV, gateway, taxes</b><small>Same as last month</small></span><span class="same">No change</span></div>
+          <p>That one line is the whole $56.41 difference. You can bring it back down today.</p>
+          <div class="explain-cta"><a class="btn" href="offers.html">See my options</a><a class="textlink" href="support.html#contact">Talk to a person</a></div>
+        </div>
       </div>
       <div class="panel"><header><h2>Bill history</h2><span class="label">Last 6 statements</span></header><div class="chart"><svg viewBox="0 0 520 200" role="img" aria-label="Monthly bill, April to September. Five months at $89.99, then $146.40 in September."><line x1="40" x2="520" y1="170.0" y2="170.0" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="173.0">$0</text><line x1="40" x2="520" y1="123.1" y2="123.1" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="126.1">$50</text><line x1="40" x2="520" y1="76.2" y2="76.2" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="79.2">$100</text><line x1="40" x2="520" y1="29.4" y2="29.4" stroke="#E1E7EC" stroke-width="1"/><text x="0" y="32.4">$150</text><rect x="40.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="65.0" y="79.6" text-anchor="middle">$89.99</text><text x="65.0" y="186" text-anchor="middle">Apr</text><rect x="126.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="151.0" y="79.6" text-anchor="middle">$89.99</text><text x="151.0" y="186" text-anchor="middle">May</text><rect x="212.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="237.0" y="79.6" text-anchor="middle">$89.99</text><text x="237.0" y="186" text-anchor="middle">Jun</text><rect x="298.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="323.0" y="79.6" text-anchor="middle">$89.99</text><text x="323.0" y="186" text-anchor="middle">Jul</text><rect x="384.0" y="85.6" width="50" height="84.4" rx="3" fill="#0B6E78"/><text class="val" x="409.0" y="79.6" text-anchor="middle">$89.99</text><text x="409.0" y="186" text-anchor="middle">Aug</text><rect x="470.0" y="32.8" width="50" height="137.2" rx="3" fill="#F2554A"/><text class="val now" x="495.0" y="26.8" text-anchor="middle">$146.40</text><text x="495.0" y="186" text-anchor="middle">Sep</text></svg></div></div>
       <div class="panel"><header><h2>Payment history</h2></header>
@@ -54,11 +61,24 @@
   /* The line-item toggle is intentionally broken for the story: it does nothing.
      Repeated clicks are reported as frustration for Qualtrics targeting and the simulated agent. */
   var t=document.getElementById("line-item-toggle"), clicks=[];
+  var ex=document.getElementById("bill-explain"), sum=document.getElementById("bill-summary"), explained=false;
   window.VL=window.VL||{}; window.VL.rageClicks=0;
+  function setOpen(open){ ex.hidden=!open; t.setAttribute("aria-expanded",String(open)); t.classList.toggle("open",open); t.querySelector("span").textContent=open?"Hide line-item details":"Show line-item details"; }
+  /* Future state: once frustration is detected, the page itself answers. The bill summary is spotlit for a moment
+     and the line that changed is explained in place. After that the toggle works normally. */
+  function explain(){
+    if(explained) return; explained=true; setOpen(true);
+    document.getElementById("promo-row").classList.add("flag"); sum.classList.add("spot");
+    var s=document.createElement("div"); s.className="vl-scrim"; document.body.appendChild(s);
+    setTimeout(function(){ s.remove(); sum.classList.remove("spot"); },2800);
+    try{ sum.scrollIntoView({block:"nearest",behavior:"smooth"}); }catch(e){}
+  }
   t.addEventListener("click",function(){
+    if(explained){ setOpen(ex.hidden); return; }
     var now=Date.now(); clicks=clicks.filter(function(c){return now-c<2000}); clicks.push(now);
     if(clicks.length>=3){ clicks=[]; window.VL.rageClicks++; document.cookie="vl_rage=1;path=/;max-age=86400;SameSite=Lax";
       document.dispatchEvent(new CustomEvent("vl:frustration",{detail:{element:"line-item-toggle"}}));
+      if(window.VL.mode==="future") explain();
       /* Future state with the Qualtrics agent: flag the moment and re-run Qualtrics targeting so the bill-page intercept can show. */
       if(window.VL.mode==="future" && window.VL.agent!=="sim"){ window.VL.qualtricsAssist=true;
         try{ if(window.QSI&&QSI.API){ QSI.API.unload(); QSI.API.load().then(function(){ QSI.API.run(); }); } }catch(e){} } }

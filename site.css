@@ -54,7 +54,14 @@ button{font:inherit;cursor:pointer}
 .icon-btn{width:38px;height:38px;border:0;background:transparent;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:50%}
 .icon-btn:hover{background:var(--wash)}
 .avatar{width:28px;height:28px;background:var(--teal);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;border-radius:50%}
-@media (max-width:960px){.mainnav{display:none}.site-head .wrap{justify-content:space-between;gap:12px}}
+.menu-btn{display:none}
+.mnav{border-top:1px solid var(--line);background:var(--paper);box-shadow:var(--soft)}
+.site-head .mnav .wrap{display:grid;height:auto;gap:0;padding-block:8px 14px;justify-content:stretch}
+.mnav a{padding:13px 4px;color:var(--ink);text-decoration:none;font-weight:600;border-bottom:1px solid var(--line)}
+.mnav a:last-child{border-bottom:0}
+.mnav a[aria-current]{color:var(--teal)}
+@media (max-width:960px){.mainnav{display:none}.menu-btn{display:inline-flex}.site-head .wrap{justify-content:space-between;gap:12px}}
+@media (min-width:961px){.mnav{display:none}}
 
 /* buttons: flat, 4px, near-black primary */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--r);padding:12px 24px;font-family:var(--sans);font-weight:600;font-size:16px;text-decoration:none;border:2px solid var(--ink);background:var(--ink);color:#fff}
@@ -309,3 +316,73 @@ table.dt td.r,table.dt th.r{text-align:right;font-variant-numeric:tabular-nums}
   .band{padding-block:48px}
 }
 body[data-page="promo-email"]{background:var(--wash)}
+
+/* ---------- demo bar: segmented controls, one compact row on phones ---------- */
+.demo-bar .ctl{display:flex;gap:6px 14px;align-items:center;flex-wrap:wrap}
+.demo-bar .grp{display:inline-flex;align-items:center;gap:6px}
+.demo-bar .lbl{color:#9FB0C4}
+.demo-bar .seg{display:inline-flex;border:1px solid #55688A;border-radius:6px;overflow:hidden}
+.demo-bar .seg button{background:transparent;color:#DCE4EC;border:0;padding:0 10px;min-height:28px;font-size:12px;font-weight:600}
+.demo-bar .seg button+button{border-left:1px solid #55688A}
+.demo-bar .seg button:hover{background:#2C3B52}
+.demo-bar .seg button[aria-pressed="true"]{background:#fff;color:var(--ink)}
+.demo-bar .reset{background:none;border:0;color:#C9D3DC;text-decoration:underline;font-size:12px;padding:6px 0}
+.demo-bar a{color:#C9D3DC}
+.demo-bar :focus-visible{outline-color:#fff}
+.demo-bar .short{display:none}
+@media (max-width:760px){.demo-bar .long,.demo-bar .lbl,.demo-bar .msg{display:none}.demo-bar .short{display:inline}.demo-bar .ctl{gap:6px 8px;flex-wrap:nowrap;width:100%;justify-content:space-between}.demo-bar .seg button{padding:0 8px}}
+
+/* ---------- phones: chat button moves out of the way of the content ---------- */
+@media (max-width:960px){
+  .chat-launch{left:auto;right:14px;bottom:14px;width:auto;flex-direction:row;gap:8px;padding:12px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(15,27,45,.28)}
+  .chat-launch span{writing-mode:horizontal-tb;transform:none}
+  .chat-panel{left:8px;right:8px;bottom:8px;width:auto}
+}
+
+/* ---------- bill page: the in-place answer that appears after frustration (future state) ---------- */
+.linkbtn .ic{transition:transform .2s}
+.linkbtn.open .ic{transform:rotate(180deg)}
+.row.flag{background:#FFF1EF;box-shadow:inset 4px 0 0 var(--pop)}
+.row.flag>span{color:var(--pop-2);font-weight:600}
+.explain{border-top:1px solid var(--line);background:var(--tint);padding:20px 26px 24px;display:grid;gap:12px;animation:vl-drop .45s cubic-bezier(.2,.8,.2,1)}
+.explain-head{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.015em}
+.pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--pop);flex:none;animation:vl-pulse 1.6s ease-out 3}
+.explain-row{display:flex;justify-content:space-between;align-items:center;gap:14px;background:#fff;border-radius:10px;padding:12px 16px}
+.explain-row small{display:block;color:var(--ink-3);font-size:13px}
+.explain-row .was{display:flex;gap:10px;align-items:baseline;white-space:nowrap}
+.explain-row .was s{color:var(--ink-3)}
+.explain-row .was b{color:var(--pop-2);font-family:var(--display);font-size:20px}
+.explain-row .same{color:var(--ink-3);font-size:14px;white-space:nowrap}
+.explain p{color:var(--ink-2);font-size:15px}
+.explain-cta{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.vl-scrim{position:fixed;inset:0;z-index:35;background:rgba(15,27,45,.42);pointer-events:none;animation:vl-scrim 2.8s ease both}
+.panel.spot{position:relative;z-index:36;box-shadow:0 0 0 4px var(--pop),0 24px 60px rgba(15,27,45,.35);transition:box-shadow .3s}
+@keyframes vl-scrim{0%{opacity:0}12%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes vl-drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes vl-pulse{0%{box-shadow:0 0 0 0 rgba(242,85,74,.55)}100%{box-shadow:0 0 0 12px rgba(242,85,74,0)}}
+
+/* ---------- the assistant that steps in (agent-sim.js) ---------- */
+.chat-panel.agent{height:auto;max-height:min(620px,calc(100vh - 90px));border-top:5px solid var(--pop);animation:vl-in .42s cubic-bezier(.2,.9,.25,1.15),vl-ring 1.4s ease-out .42s 2}
+.chat-panel.agent header{align-items:flex-start;padding:14px 18px 16px}
+.chat-panel.agent header .ttl{display:grid;gap:4px}
+.chat-panel.agent header .eye{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:600;font-size:12px;color:#FFB4AE;letter-spacing:.01em}
+.chat-panel.agent header .eye .pulse-dot{width:8px;height:8px;animation-iteration-count:infinite}
+.chat-panel.agent header .h{font-size:19px;letter-spacing:-.015em}
+.agent-note{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 18px;background:#fff;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-3)}
+.agent-note button{background:none;border:0;color:var(--link);font-weight:600;font-size:12px;text-decoration:underline;padding:4px 0}
+.chat-panel.agent .chat-log{min-height:150px}
+.cmsg.typing{letter-spacing:3px;color:var(--ink-3)}
+.cmsg.wide{max-width:100%;align-self:stretch;background:none;box-shadow:none;padding:0}
+.ocards{display:grid;gap:8px}
+.ocards button{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;align-items:center;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink)}
+.ocards button:hover{border-color:var(--teal);background:var(--tint)}
+.ocards .px{grid-row:1/3;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.03em;min-width:92px}
+.ocards .px small{font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:0}
+.ocards .nm{font-weight:700;font-size:14px}
+.ocards .ds{font-size:13px;color:var(--ink-3)}
+.ocards button.rec{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.ocards .tag{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:#fff;background:var(--teal);border-radius:999px;padding:1px 8px;vertical-align:1px}
+@keyframes vl-in{from{opacity:0;transform:translateY(36px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes vl-ring{0%{box-shadow:0 20px 60px rgba(15,27,45,.3),0 0 0 0 rgba(242,85,74,.5)}100%{box-shadow:0 20px 60px rgba(15,27,45,.3),0 0 0 16px rgba(242,85,74,0)}}
+@media (max-width:960px){.chat-panel.agent{max-height:72vh}}
+@media (prefers-reduced-motion:reduce){.vl-scrim{display:none}.explain,.chat-panel.agent,.pulse-dot,.chat-panel.agent header .eye .pulse-dot{animation:none}}
