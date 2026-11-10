@@ -363,21 +363,25 @@ body[data-page="promo-email"]{background:var(--wash)}
 /* ---------- bill page helper: one thread that gets louder only when Maya needs it ---------- */
 .linkbtn .ic{transition:transform .2s}
 .linkbtn.open .ic{transform:rotate(180deg)}
-.whyline{align-self:flex-start;background:none;border:0;padding:4px 0;margin:-4px 0;font:inherit;font-size:15px;color:var(--ink-2);text-align:left;border-radius:8px;transition:background .5s,padding .5s,margin .5s}
+.whyline{align-self:flex-start;background:none;border:0;padding:4px 0;margin:-4px 0;font:inherit;font-size:15px;color:var(--ink-2);text-align:left;border-radius:6px;box-shadow:0 0 0 0 transparent;transition:background .6s,box-shadow .6s,color .3s}
 .whyline b{color:var(--pop-2)}
 .whyline u{color:var(--link);font-weight:600;text-underline-offset:3px;white-space:nowrap}
-.whyline.nudge{background:var(--tint);padding:10px 14px;margin:0;color:var(--ink)}
+.whyline.nudge{background:var(--tint);box-shadow:0 0 0 8px var(--tint);color:var(--ink)}
+.whyline.nudge u{animation:vl-hint 1.6s ease-in-out 2}
+.whyline.seen u{color:var(--ink-3);font-weight:500}
 .whyline.ok{display:inline-flex;gap:8px;align-items:center;color:#075E3A;font-weight:600;cursor:default}
 .row .ended{color:var(--ink-3);font-size:14px}
 .row .ended s{margin-right:10px}
 .row.lit{background:var(--tint)}
 .row.lit>span:first-child{color:var(--ink);font-weight:600}
-.helper{background:var(--tint);border-top:1px solid var(--line);padding:16px 26px 20px;display:grid;gap:14px;animation:vl-drop .5s cubic-bezier(.2,.8,.2,1)}
+.helper{background:var(--tint);border-top:1px solid var(--line);padding:16px 26px 20px;display:grid;gap:14px;justify-items:start}
+.helper>*{max-width:100%}
+.helper .h-opts{justify-self:stretch}
 .helper p{font-size:15px;color:var(--ink)}
 .helper .up{color:var(--pop-2)}
 .h-cta{display:flex;gap:6px 22px;align-items:center;flex-wrap:wrap}
 .textbtn{background:none;border:0;padding:6px 0;font:inherit;font-size:15px;font-weight:600;color:var(--link);text-decoration:underline;text-underline-offset:3px;text-align:left}
-.h-opts{display:grid;gap:8px;animation:vl-drop .45s cubic-bezier(.2,.8,.2,1)}
+.h-opts{display:grid;gap:8px}
 .h-sub{font-size:13px;color:var(--ink-3)}
 .h-opt{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:2px 14px;align-items:center;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--ink);font:inherit}
 .h-opt:hover{border-color:var(--teal)}
@@ -388,7 +392,7 @@ body[data-page="promo-email"]{background:var(--wash)}
 .h-opt .ds{grid-column:2;font-size:13px;color:var(--ink-3)}
 .h-opt .go{grid-row:1/3;grid-column:3;font-weight:600;font-size:14px;color:var(--link)}
 .h-opt .tag{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--teal);border:1px solid var(--teal);border-radius:999px;padding:0 8px;vertical-align:1px}
-.h-done{display:flex;gap:12px;align-items:flex-start;animation:vl-drop .45s cubic-bezier(.2,.8,.2,1)}
+.h-done{display:flex;gap:12px;align-items:flex-start}
 .h-done .ic{color:var(--green);flex:none;margin-top:3px}
 .big.fixed{color:var(--green);animation:vl-pop .6s cubic-bezier(.2,.9,.25,1.3)}
 .row.ok-row{background:var(--green-soft)}
@@ -459,3 +463,26 @@ body.trace-open .chat-launch{bottom:152px}
 @keyframes vl-pulse{0%{box-shadow:0 0 0 0 rgba(242,85,74,.55)}100%{box-shadow:0 0 0 10px rgba(242,85,74,0)}}
 @media (prefers-reduced-motion:reduce){.helper,.h-opts,.h-done,.shock,.shock-wrap,.chat-panel.agent,.t-log li,.big.fixed,.pulse-dot{animation:none}}
 @media (max-width:560px){.helper{padding:14px 18px 18px}.h-opt{grid-template-columns:74px minmax(0,1fr) auto;gap:2px 10px;padding:12px}.h-opt .px{font-size:22px}}
+
+/* ---------- every action answers at once: pressed, working and done states ---------- */
+.btn,.h-opt,.textbtn,.whyline,.linkbtn,.offer button{transition:transform .12s ease,background .2s,border-color .2s,opacity .2s,color .2s}
+.btn:active,.h-opt:active{transform:scale(.98)}
+.row,.big{transition:background .5s,color .4s}
+.linkbtn.busy .ic{animation:vl-spin .8s linear infinite}
+.linkbtn.busy{color:var(--ink-3)}
+.h-opts.working .h-opt:not(.busy){opacity:.45;pointer-events:none}
+.h-opt.busy{border-color:var(--teal);background:var(--tint);cursor:progress}
+.h-opt.busy .go{display:inline-flex;align-items:center;gap:8px;color:var(--ink-2)}
+.h-opt.busy .go::before,.btn.busy::before{content:"";width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:vl-spin .7s linear infinite}
+.btn.busy{display:inline-flex;align-items:center;gap:8px;cursor:progress}
+.h-opt.chosen{border-color:var(--green);background:#fff;opacity:1;cursor:default}
+.h-opt.chosen .go{color:var(--green)}
+.h-opt.chosen .tag{display:none}
+.h-opt:disabled{color:var(--ink)}
+.notice.ok{background:var(--green-soft)}
+.offer.chosen{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.offer button:disabled{opacity:.7;cursor:default}
+.offer.chosen button:disabled{opacity:1;background:var(--green-soft);border-color:var(--green);color:#075E3A}
+@keyframes vl-spin{to{transform:rotate(360deg)}}
+@keyframes vl-hint{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.linkbtn.busy .ic,.h-opt.busy .go::before,.btn.busy::before,.whyline.nudge u{animation:none}}
