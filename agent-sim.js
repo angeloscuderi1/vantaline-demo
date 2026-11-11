@@ -35,7 +35,7 @@
     c.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { c.remove(); handle(b.textContent); }); });
   }
   function focusInput() { setTimeout(function () { try { panel.querySelector("#agent-input").focus({ preventScroll: true }); } catch (e) {} }, 450); }
-  var pending = false;   // true only while an offer is on the table, so a bare "yes" never applies anything by accident
+  var pending = false, offered = false;   // offered: a better price has been put on the table (only after she pushes back)   // true only while an offer is on the table, so a bare "yes" never applies anything by accident
 
   function greet(askFirst) {
     started = true;
@@ -48,7 +48,7 @@
     panel.hidden = false; focusInput();
     if (started) return;
     greet();
-    setTimeout(function () { chips(["Why wasn’t I told?", "Can I get it lower than $119?", "Apply the $119 price lock"]); }, 500);
+    setTimeout(function () { chips(["Why wasn’t I told?", "That’s a lot more than I expected", "Talk to a person"]); }, 500);
   }
 
   function human(quiet) {
@@ -60,7 +60,7 @@
     trace("action", "Handed to Jordan R., Retention", "Sent with the conversation, churn score and session replay, so she does not repeat herself", { status: "With a person" });
     if (quiet !== true) say("Of course. I’m bringing in Jordan from our loyalty team. Jordan will see everything so far, so you won’t need to repeat anything.", 700);
     setTimeout(function () { add("sys", "Jordan R. (Retention) joined · has your bill and this conversation"); }, 2300);
-    setTimeout(function () { pending = true; add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read through this, and I’m sorry the notice never reached you. I can lock in $119 a month for the next 12 months right now. Want me to apply it?"); }, 3600);
+    setTimeout(function () { pending = true; offered = true; add("bot", "<b>Jordan R.</b><br>Hi Maya, I’ve read through this, and I’m sorry the notice never reached you. I can lock in $119 a month for the next 12 months right now. Want me to apply it?"); }, 3600);
   }
 
   function handle(text) {
@@ -73,6 +73,11 @@
       trace("signal", "Maya mentioned cancelling", "A person should take this, with everything she has seen so far", { risk: 90 });
       say("I can get that started, and I don’t want to stand in the way. Before anything changes, I’ll bring in someone who can either lower the bill or close the account, whichever you decide.", 700);
       setTimeout(function () { human(true); }, 900);
+    } else if (!offered && /expected|big jump|a lot|too much|too high|afford|expensive|lower|cheaper|less|can.?t pay/.test(t)) {
+      offered = true; pending = true;
+      trace("signal", "Maya pushed back on the price", "Not confused any more, just unhappy with the number", { risk: 78, status: "Finding a better price" });
+      trace("decision", "One offer picked for Maya", "4-year customer, watches TV most evenings: keep her plan, lower the price. $119 locked 12 months, no approval needed.");
+      say("That’s fair. You’ve been with us four years, and a $56 jump isn’t how we want this to go. I can keep everything you have for <b>$119 a month, locked for 12 months</b>. That’s $27.40 less than this bill. Want me to apply it?", 1200);
     } else if (/gateway|modem|router|rental|equipment/.test(t)) {
       say("The $15.00 is the monthly rental for your XB-7 gateway. It was $15.00 last month too, so it isn’t part of the increase. You can use your own compatible modem and drop that charge.");
     } else if (/tax|fee/.test(t)) {
@@ -105,7 +110,7 @@
     } else if (/thanks|thank you/.test(t)) {
       say("You’re welcome, Maya.");
     } else if (yes) {
-      say("Happy to. Which would you like: the $119 price lock that keeps everything, or Internet 500 only at $85?");
+      say(offered ? "Happy to. Which would you like: the $119 price lock that keeps everything, or Internet 500 only at $85?" : "Sure. What would you like to know about the bill?");
     } else {
       say("I’m not sure I have that one right, and I’d rather not guess about your bill. I can explain any line on it, apply one of the two lower-price options, or bring in a person.");
     }

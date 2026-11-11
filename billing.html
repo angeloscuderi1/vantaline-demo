@@ -37,12 +37,20 @@
         <div class="row muted" id="promo-row"><span>Promotional discount</span><span>—</span></div>
         <div class="helper" id="bill-explain" hidden>
           <p id="h-lead">Your 12-month promo ended on Sep 1. That is the whole <b class="up">$56.41</b> difference. Everything else is the same as August.</p>
-          <button class="btn sm" type="button" id="h-options">See ways to lower it</button>
+          <div class="h-react" id="h-options">
+            <span class="h-sub">How does that sit with you?</span>
+            <div class="h-chips"><button type="button" class="h-chip" data-r="push">That&rsquo;s a lot more than I expected</button><button type="button" class="h-chip" data-r="ok">OK, that makes sense</button></div>
+          </div>
+          <div class="h-think" id="h-think" hidden><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>Looking at your account&hellip;</div>
           <div class="h-opts" id="h-opts" hidden>
-            <span class="h-sub">Pick one and it applies to this bill. You can change your mind later.</span>
-            <button class="h-opt rec" type="button" data-price="119" data-label="Keep everything, 12-month price lock" data-row="12-month price lock" data-delta="-27.40"><span class="px">$119<small>/mo</small></span><span class="nm">Keep everything <span class="tag">Most popular</span></span><span class="ds">Same internet and TV, price locked for 12 months</span><span class="go">Apply</span></button>
-            <button class="h-opt" type="button" data-price="85" data-label="Internet 500 only" data-row="TV Select removed, new plan price" data-delta="-61.40"><span class="px">$85<small>/mo</small></span><span class="nm">Internet 500 only</span><span class="ds">Drop TV, add it back anytime</span><span class="go">Apply</span></button>
-            <button class="textbtn" type="button" id="h-keep">Keep my current plan at $146.40</button>
+            <p class="h-say" id="h-say">That&rsquo;s fair, Maya. You&rsquo;ve been with us four years, and a $56 jump isn&rsquo;t how we want this to go. Here&rsquo;s a better price for you:</p>
+            <button class="h-opt rec" type="button" data-price="119" data-label="Keep everything, 12-month price lock" data-row="12-month price lock" data-delta="-27.40"><span class="px">$119<small>/mo</small></span><span class="nm">Keep everything you have</span><span class="ds">Same internet and TV, price locked for 12 months. $27.40 less than this bill.</span><span class="go">Apply</span></button>
+            <button class="textbtn" type="button" id="h-still">Still more than I want to pay</button>
+            <div class="h-alt" id="h-alt" hidden>
+              <p class="h-say">Understood. If TV is the thing you could let go, this is the lowest I can go:</p>
+              <button class="h-opt" type="button" data-price="85" data-label="Internet 500 only" data-row="TV Select removed, new plan price" data-delta="-61.40"><span class="px">$85<small>/mo</small></span><span class="nm">Internet 500 only</span><span class="ds">Drop TV, add it back anytime</span><span class="go">Apply</span></button>
+              <button class="textbtn" type="button" id="h-keep">Keep my current plan at $146.40</button>
+            </div>
           </div>
           <div class="h-done" id="h-done" hidden></div>
           <div class="h-cta" id="h-cta"><button class="textbtn" type="button" id="h-ask">Ask a question</button><button class="textbtn" type="button" id="h-person">Talk to a person</button></div>
@@ -70,7 +78,9 @@
      Future state: one helper on the bill that gets louder only if Maya needs it.
        0 quiet    a calm line under the amount: "$56.41 more than last month. See why"
        1 nudge    after a while without acting, that line is gently highlighted
-       2 helper   on "See why" or frustration, the explanation slides open under the promo line, then options
+       2 helper   on "See why" or frustration, the explanation slides open under the promo line and asks how it sits.
+                  Nothing is offered until Maya pushes back. Then the agent comes back with one better price for her,
+                  and a lower one only if she says it is still too much. "OK, that makes sense" gets no offer at all.
        3 pop-up   only if she then goes idle for 30 seconds without choosing, or shows frustration again
      Every action answers at once (pressed and "Applying" states), nothing jumps, and the result is saved
      so the account and offers pages agree. The assistant never opens by itself. */
@@ -79,7 +89,7 @@
   var $=function(id){ return document.getElementById(id); };
   var t=$("line-item-toggle"), ex=$("bill-explain"), why=$("bill-delta"), promo=$("promo-row"), opts=$("h-opts"), done=$("h-done"),
       cta=$("h-cta"), more=$("h-options"), due=$("amount-due"), total=$("total-amt");
-  var level=0, resolved=false, assisted=false, clicks=[], loudTimer=null, busyTimer=null;
+  var level=0, resolved=false, assisted=false, pushed=false, clicks=[], loudTimer=null, busyTimer=null;
   function trace(l,ti,d,o){ if(VL.trace) VL.trace(l,ti,d,o); }
 
   /* Open or close a block by animating its height, so the rows below glide instead of jumping. */
@@ -152,7 +162,7 @@
     });
   }
   /* Presenter control in the demo bar: move the story on without waiting. */
-  VL.nextStep=function(){ if(!FUTURE||resolved) return; if(level===0) nudge(); else if(level===1) openHelper(); else if(level===2){ clearTimeout(loudTimer); loud(); } };
+  VL.nextStep=function(){ if(!FUTURE||resolved) return; if(level===0) nudge(); else if(level===1) openHelper(); else if(level===2&&!pushed) pushBack(); else if(level===2){ clearTimeout(loudTimer); loud(); } };
 
   t.addEventListener("click",function(){
     var now=Date.now(); clicks=clicks.filter(function(c){return now-c<2000}); clicks.push(now);
@@ -168,11 +178,33 @@
       trace("signal","3 fast clicks on \u201cShow line-item details\u201d","The link is not responding. Frustration on the bill page.",{risk:82,status:"Stepping in"}); openHelper(true); }
   });
 
-  function showOptions(){ slide(more,false,function(){ slide(opts,true); }); }
+  /* Her reply stays on the page, so the exchange reads as a conversation, not a menu. */
+  function me(el,text){ var d=document.createElement("p"); d.className="h-me"; d.textContent=text; el.replaceWith(d); }
+  /* Maya questions the bill. The agent takes a moment to look, then answers with one price chosen for her. */
+  function pushBack(){
+    if(pushed||resolved) return; pushed=true; armIdle();
+    var think=$("h-think");
+    trace("signal","Maya: \u201cThat\u2019s a lot more than I expected\u201d","Price pushback after the explanation, not confusion",{risk:78,status:"Finding a better price"});
+    me(more,"That\u2019s a lot more than I expected."); slide(think,true);
+    setTimeout(function(){
+      trace("decision","One offer picked for Maya","4-year customer, watches TV most evenings, so keep her plan and lower the price. $119 locked 12 months clears eligibility and margin, no approval needed.");
+      slide(think,false,function(){ slide(opts,true); });
+      trace("action","Better price offered on the bill","One option, in the agent\u2019s words. Lower options held back until she asks.");
+    },CALM?0:1400);
+  }
+  function stillTooMuch(){
+    var alt=$("h-alt"), still=$("h-still"); armIdle();
+    trace("signal","Maya: still more than she wants to pay","The price lock is not enough on its own",{risk:80});
+    trace("decision","Next option: less service, lower price","Internet only at $85. A person stays one tap away.");
+    me(still,"Still more than I want to pay."); slide(alt,true);
+  }
   function finish(d,live){
     var amt="$"+Number(d.price).toFixed(2), card=opts.querySelector('.h-opt[data-price="'+d.price+'"]');
     resolved=true; clearTimeout(loudTimer); level=Math.max(level,2);
-    [].forEach.call(opts.children,function(c){ if(c!==card) c.hidden=true; });
+    [].forEach.call(ex.querySelectorAll(".h-me,.h-react"),function(c){ c.hidden=true; });
+    [].forEach.call(opts.querySelectorAll(".h-say,.h-opt,.textbtn"),function(c){ if(c!==card) c.hidden=true; });
+    if(card&&card.closest("#h-alt")) $("h-alt").hidden=false;
+    $("h-think").hidden=true;
     if(card){ card.classList.remove("busy"); card.classList.add("chosen"); card.disabled=true; card.querySelector(".go").textContent="\u2713 Applied"; }
     more.hidden=true; opts.hidden=false;
     if(live){ count(due,146.40,d.price); count(total,146.40,d.price); } else { due.textContent=amt; total.textContent=amt; }
@@ -191,11 +223,17 @@
 
   if(FUTURE){
     why.addEventListener("click",function(){ if(resolved) return; if(level<2) trace("signal","Maya tapped \u201cSee why\u201d","She asked, so the page answers"); if(level>=2) setOpen(ex.hidden); else openHelper(); });
-    more.addEventListener("click",function(){
-      showOptions();
-      trace("decision","Three options cleared for Maya","Eligibility, margin and contact limits checked. $119 for 12 months needs no approval.");
-      trace("action","Options shown in the same place","No new window, no hand-off");
+    more.addEventListener("click",function(e){
+      var c=e.target.closest(".h-chip"); if(!c||resolved) return;
+      if(c.dataset.r==="push"){ pushBack(); return; }
+      resolved=true; clearTimeout(loudTimer); why.classList.remove("nudge");
+      trace("signal","Maya: \u201cOK, that makes sense\u201d","The explanation was enough",{risk:48,status:"Understood"});
+      trace("decision","No offer","She isn\u2019t asking for one. A discount now would only cost margin.");
+      trace("memory","Text her before the next price change","So the next bill is not a surprise",{status:"Understood, nothing pushed"});
+      done.innerHTML='<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><p><b>Thanks for checking, Maya.</b> From now on we\u2019ll text you before any price change, so the bill is never the first you hear of it.</p>';
+      slide(more,false,function(){ slide(done,true); });
     });
+    $("h-still").addEventListener("click",stillTooMuch);
     $("h-ask").addEventListener("click",function(){ trace("signal","Maya wants to ask something","Open the assistant with the bill context"); assist(false); });
     $("h-person").addEventListener("click",function(){ assist(true); });
     opts.addEventListener("click",function(e){
